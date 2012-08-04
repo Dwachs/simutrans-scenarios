@@ -1,0 +1,96 @@
+Goal 1:
+
+Zunächst braucht Wolverhampton eine gute Grundversorgung (und Fieldman Anhänger).
+Der Supermarkt braucht Waren und die Einwohner sollen dort einkaufen. (Überschüsse werden exportiert).
+Sorge dafür, dass der Supermarkt in jedem Monat 1000 Paletten Lebensmittel erhält und genug Einwohner zum Supermarkt kommen.
+In jedem Monat, in dem du eines dieser Ziele verfehlst, musst du 20000 C Strafe bezahlen.
+
+Regeln 1:
+
+Es gelten folgende Einschränkungen beim Transport:
+-  U-Bahnen in Wolverhamton sind nicht erlaubt (im ganzen Spiel).
+-  Das Stahlwerk und die Sägewerke (730,35), (1065,63), (1396,112) liefern keine Waren für den Baumarkt.
+
+
+Anmerkung: Ich war mir nicht sicher, ob man dem Spieler sagen soll, wieviele Passagiere man befördern soll, fand es aber spannender, dass der Hinweis allgemein bleibt. (siehe Regeln)
+
+Erfolg (während dieser Etappe) : 0 %
+
+---
+
+Goal 2:
+
+Fieldman ist zufrieden, außerdem musste der amtierende Bürgermeister wegen eines örtlichen Skandals zurücktreten.
+Du darfst nun beweisen, dass du in der Lage bist, den Export im Ort voranzubringen.
+Sorge dafür, dass der Baumarkt 5000 Einheiten an Brettern erhält.
+
+Regel 2:
+
+wie bei 1
+
+Erfolg : 15 %
+
+---
+
+Goal 3:
+
+Gut gemacht. Nach diesen Erfolgen soll der Export nun ausgeweitet werden.
+Fieldman hat das einzige Stahlwerk der Region übernommen und du sollst natürlich den Stahl herbeischaffen.
+Sorge dafür, dass der Baumarkt 1000 Einheiten Stahl erhält.
+
+Regel 3:
+
+Es gelten folgende Einschränkungen beim Transport:
+
+- U-Bahnen in Wolverhampton sind nicht erlaubt (im ganzen Spiel)
+-  Die drei entfernten Sägewerke produzieren nicht für den Baumarkt.
+
+Erfolg : 30 % (eventuell 40%, sobald 500 Einheiten geliefert wurden).
+
+---
+
+Goal 4 :
+
+Es stehen Neuwahlen des Bürgermeisters an und Fieldmans Umfragewerte sind schlecht.
+Zu oft stehen die Regales des Supermarktes leer (die Exporte bringen mehr Geld).
+Sorge dafür, dass ab jetzt 2000 Einheiten an Lebensmitteln pro Monat geliefert werden (vielleicht hättest du das Kleingedruckte lesen sollen).
+
+Regel 4:
+
+wie bei 3
+
+Erfolg : 50 %
+
+---
+
+Goal 5:
+
+Fieldman ist Bürgermeister und etwas entspannter geworden.
+Du hast nun etwas freiere Hand.
+Es wurden Handelsverträge mit den Sägewerken getroffen, damit mehr Bretter geliefert werden können.
+Um deine letzten Ziele zu erreichen müssen alle Sägewerke Bretter an den Baumarkt geliefert haben.
+In einem Monat müssen mindestens 5000 Einheiten (Bretter+Lebensmittel+Stahl) an den Baumarkt und den Supermarkt geliefert worden sein.
+
+Regel 5:
+
+U-Bahnen in Wolverhampton sind verboten.
+
+Erfolg : 70 %
+
+---
+
+Goal 6:
+
+Gratuliere, du hast das Spiel gewonnen und darfst jetzt versuchen Bürgermeister zu werden.
+
+
+---
+
+
+
+Leider hast du deinen Kreditrahmen überzogen und das Spiel verloren.
+
+
+---
+
+Leider hast du dein Ziel verfehlt, genug Lebensmittel und Passagiere zum Supermarkt zu bringen und musst in diesem Monat eine Strafe von 20000 C bezahlen.

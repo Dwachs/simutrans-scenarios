@@ -1,0 +1,46 @@
+Authors: Severous / partyschreck
+
+Regeln
+
+für das ganze Spiel:
+Es dürfen keine U-Bahnen in Wolverhampton gebaut werden.
+
+(In selling cloth waren Koordinaten im Code, auf denen nicht gebaut werden durfte. Hier könnte man U-Bahnen auch komplett sperren - wie in tramadness über die Leisten, denn ich kann mir nicht vorstellen, wo man sonst U-Bahnen bauen sollte.)
+
+Verlust überprüfen:
+für Stage < 4 : wenn abgefahrene Passagiere am Supermarkt (377,108) < 50 
+           oder wenn angekommene Ware (food) am Supermarkt < 1000
+
+  dann 20000 C Strafe
+
+für Stage > 3 : wenn abgefahrene Passagiere am Supermarkt < 50
+           oder wenn angekommene Ware (food) am Supermarkt < 2000
+
+  dann 20000 C Strafe
+
+Danach sollte das Gesamtvermögen überprüft werden.
+
+Anmerkungen: Bei Strafe sollte ein kleines Infofenster öffnen (siehe Texte)  und den Spieler informieren. Da man den Lebensmittelwert überprüfen kann, kann jeder herausfinden, welches Ziel er verfehlt hat.
+Es ist geplant, dass die Gefahr besteht hier direkt Pleite zu machen.
+Gab es in Selling cloth eigentlich Zinsen ? 
+Der Passagierwert von 50 ist getestet. Wichtig ist den Wert für die abgefahrenen Passagiere zu benutzen, weil der relativ konstant ist. Wenn im Ort so etwas wie ein neues Touristenziel generiert wird, kann es aber gefährlich werden und zu einer bösen Überraschung führen.
+
+Überprüfung der Etappenziele :
+
+
+Stage 1: wenn angekommene Ware (food) am Lebensmittelmarkt (377,108) >= 50
+    und  wenn abgefahrene Passagiere am Supermarkt >= 1000 dann gehe zu Etappe 2 (15%)
+
+Stage 2: wenn angekommene Ware (Bretter) am Baumarkt (377,106) >= 5000 (monatsübergreifend !) dann Etappe 3 (30%)
+
+Stage 3: wenn angekommene ware (Steel?) am Baumarkt (377,106) >= 1000 (monatsübergreifend) dann Etappe 4 (50%)
+
+Stage 4 : wenn angekommene Ware (food) am Lebensmittelmarkt >= 2000
+     und wenn abgefahrene Passagiere am Lebensmittelmarkt >= 50 dann Etappe 5 (70%)
+
+Stage 5 :  wenn angekommene Ware Bretter von Sägewerk (730,35) > 0 (monatsübergreifend)
+      und  wenn angekommene Ware Bretter von Sägewerk (1065,63) > 0 (monatsübergreifend)
+      und wenn angekommene Ware Bretter von Sägewerk (1396,112) > 0 (monatsübergreifend)
+      und wenn angekommene Ware (Bretter+Lebensmittel+Stahl) >= 5000 (in diesem Monat)
+
+dann ist das Spiel gewonnen (100%) - Text
