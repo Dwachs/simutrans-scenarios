@@ -41,7 +41,7 @@ function is_work_allowed_here(pl, tool_id, pos)
 	if (tool_id == tool_build_station) {
 		for(local i=-1; i<=1; i++) {
 			for(local j=-1; j<=1; j++) {
-				if (i!=0  ||  j!=0) {
+				if ( (i!=0  ||  j!=0)  &&  world.is_coord_valid({x=pos.x+i, y=pos.y+j}) ) {
 					if(square_x(pos.x + i, pos.y + j).halt) {
 						return ttext(err_no_station_expansion)
 					}
