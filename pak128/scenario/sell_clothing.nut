@@ -111,7 +111,7 @@ function get_result_text(pl)
  */
 function is_scenario_completed(pl)
 {
-	local time = get_time()
+	local time = world.get_time()
 
 	// check for oversupply
 	local fish_in_storage = fish_cannery_fish_slot.storage[0]
