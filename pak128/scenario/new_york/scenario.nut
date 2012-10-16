@@ -42,7 +42,15 @@ function get_result_text(pl)
 }
 
 local city_midtown = null
-local airports = {}
+
+// just save positions
+// halt handles might get invalid, if player makes own halt public
+local airports = {
+	jfk = { pos = [961, 494] }
+	lag = { pos = [601, 265] }
+	new = { pos = [207, 731] }
+	tet = { pos = [162, 283] }
+}
 
 function start()
 {
@@ -66,7 +74,8 @@ function get_served_airports()
 {
 	local served = 0
 	foreach(airp in airports) {
-		local flying_pax = airp.happy.reduce( sum )
+		local halt = square_x( airp.pos[0], airp.pos[1] ).halt
+		local flying_pax = halt.happy.reduce( sum )
 		if (flying_pax > 0) {
 			served ++
 		}
@@ -96,10 +105,6 @@ function is_scenario_completed(pl)
 function resume_game()
 {
 	city_midtown = city_x(398, 421)
-	airports.jfk <- square_x(961, 494).halt
-	airports.lag <- square_x(601, 265).halt
-	airports.new <- square_x(207, 731).halt
-	airports.tet <- square_x(162, 283).halt
 
 	// correct settings of savegame: no industries will be created
 	settings.set_industry_increase_every(0)
