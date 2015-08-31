@@ -111,6 +111,7 @@ class industry_connection_planner_t extends node_t
 		// successfull - complete report
 		r.cost_fix     = cnv_valuator.distance * planned_way.get_cost() + 2*planned_station.get_cost() + planned_depot.get_cost()
 		r.cost_monthly = cnv_valuator.distance * planned_way.get_maintenance() + 2*planned_station.get_maintenance() + planned_depot.get_maintenance()
+		r.gain_per_m  -= r.cost_monthly
 
 		// create action node
 		local cn = road_connector_t()
