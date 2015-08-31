@@ -154,7 +154,7 @@ class prototyper_t extends node_t
 				// TODO valuate this candidate
 				if (valuate) {
 					local value = valuate.call(getroottable(), c)
-					print(" === " + value)
+// 					print(" === " + value)
 					if (best==null  ||  value > best_value) {
 						best = c
 						best_value = value
@@ -191,7 +191,7 @@ class prototyper_t extends node_t
 //
 			return r_t(RT_SUCCESS)
 		}
-		return r_t(RT_SUCCESS)
+		return r_t(RT_ERROR)
 	}
 
 }
@@ -210,11 +210,11 @@ class valuator_simple_t {
 
 		local speed = way_max_speed > 0 ? min(way_max_speed, cnv.min_top_speed) : cnv.min_top_speed
 
-		local frev = good_desc_x(freight).calc_revenue(wt, cnv.min_top_speed)
+		local frev = good_desc_x(freight).calc_revenue(wt, speed)
 
 		local capacity = cnv.capacity
 		// tiles per month of one convoy
-		local tpm = convoy_x.speed_to_tiles_per_month(cnv.min_top_speed) / 2 + 1
+		local tpm = convoy_x.speed_to_tiles_per_month(speed) / 2 + 1
 
 		// needed convoys to transport everything
 		local n1 = volume * 2 * distance / (tpm * cnv.capacity)
