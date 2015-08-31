@@ -1,0 +1,5 @@
+First transport company {cmp0} can only work in Styxland.
+
+Second one ({cmp2}) only in the Russian part.
+
+International transport are only allowed between the two public international ports {styx} and {cern}.
