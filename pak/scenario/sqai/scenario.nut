@@ -27,6 +27,7 @@ our_player <- persistent.our_player.weakref()
 
 tree <- {}
 
+factorysearcher <- null
 industry_manager <- null
 
 function start()
@@ -39,9 +40,11 @@ function start()
 	}
 	our_player = 0
 	init()
-	tree = factorysearcher_t()
 
+	factorysearcher = factorysearcher_t()
 	industry_manager = industry_manager_t()
+
+	tree = factorysearcher
 }
 
 station_buildings <- {}
@@ -84,12 +87,22 @@ function get_goal_text(pl)
 	"
 }
 
+
+_step <- 0
+_next_construction_step <- 41
+
 function step()
 {
 	tree.step()
-	local r = tree.get_report()
-	if (r   &&  r.action) {
-		tree.append_child(r.action)
+	_step++
+
+
+	if (_step > _next_construction_step) {
+		local r = factorysearcher.get_report()
+		if (r   &&  r.action) {
+			tree.append_child(r.action)
+		}
+		_next_construction_step += 53 + (_step % 37)
 	}
 
 	// ??
