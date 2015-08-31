@@ -16,6 +16,7 @@ scenario.version = "0.1"
 include("basic")
 include("factorysearcher")
 include("industry_connection_planner")
+include("industry_manager")
 include("prototyper")
 include("road_connector")
 
@@ -25,6 +26,8 @@ persistent.our_player <- -1
 our_player <- persistent.our_player.weakref()
 
 tree <- {}
+
+industry_manager <- null
 
 function start()
 {
@@ -37,6 +40,8 @@ function start()
 	our_player = 0
 	init()
 	tree = factorysearcher_t()
+
+	industry_manager = industry_manager_t()
 }
 
 station_buildings <- {}

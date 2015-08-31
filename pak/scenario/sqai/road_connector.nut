@@ -50,6 +50,7 @@ class road_connector_t extends node_t
 					local err = w.work(pl, c_start, c_end, planned_way.get_name() )
 					if (err) {
 						print("Error " + err)
+						error_handler()
 						return r_t(RT_TOTAL_FAIL)
 					}
 					phase ++
@@ -60,6 +61,7 @@ class road_connector_t extends node_t
 					local err = w.work(pl, c_start, planned_station.get_name() )
 					if (err) {
 						print("Error " + err)
+						error_handler()
 						return r_t(RT_TOTAL_FAIL)
 					}
 					local err = w.work(pl, c_end, planned_station.get_name() )
@@ -79,6 +81,7 @@ class road_connector_t extends node_t
 					local err = w.work(pl, c_start, c_depot, planned_way.get_name() )
 					if (err) {
 						print("Error " + err)
+						error_handler()
 						return r_t(RT_TOTAL_FAIL)
 					}
 					phase ++
@@ -89,6 +92,7 @@ class road_connector_t extends node_t
 					local err = w.work(pl, c_depot, planned_depot.get_name() )
 					if (err) {
 						print("Error " + err)
+						error_handler()
 						return r_t(RT_TOTAL_FAIL)
 					}
 					phase ++
@@ -180,7 +184,14 @@ class road_connector_t extends node_t
 		local toc = get_ops_total();
 		print("road_connector wasted " + (toc-tic) + " ops")
 
+		industry_manager.set_link_state(fsrc, fdest, freight, industry_link_t.st_built);
+
 		return r_t(RT_TOTAL_SUCCESS)
+	}
+
+	function error_handler()
+	{
+		industry_manager.set_link_state(fsrc, fdest, freight, industry_link_t.st_failed);
 	}
 
 	function get_tiles_near_factory(factory)

@@ -42,6 +42,9 @@ class factorysearcher_t extends manager_t
 		if (find_missing_link(froot)) {
 			dbgprint("Close link for " + freight + " from " + fsrc.get_name() + " at " + fsrc.x + "," + fsrc.y + " to "+ fdest.get_name() + " at " + fdest.x + "," + fdest.y)
 
+
+			industry_manager.set_link_state(fsrc, fdest, freight, industry_link_t.st_planned);
+
 			local icp = industry_connection_planner_t(fsrc, fdest, freight);
 			append_child(icp)
 		}
