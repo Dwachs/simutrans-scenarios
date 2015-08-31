@@ -20,6 +20,7 @@ class industry_connection_planner_t extends node_t
 	function step()
 	{
 		debug = true
+		local tic = get_ops_total();
 
 		dbgprint("Plan link for " + freight + " from " + fsrc.get_name() + " at " + fsrc.x + "," + fsrc.y + " to "+ fdest.get_name() + " at " + fdest.x + "," + fdest.y)
 
@@ -133,6 +134,8 @@ class industry_connection_planner_t extends node_t
 		local r = r_t(RT_READY)
 		r.report = plan_report
 
+		local toc = get_ops_total();
+		print("industry_connection_planner wasted " + (toc-tic) + " ops")
 		return r
 	}
 

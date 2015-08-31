@@ -29,6 +29,7 @@ class road_connector_t extends node_t
 	function step()
 	{
 		local pl = player_x(our_player)
+		local tic = get_ops_total();
 
 		switch(phase) {
 			case 0: // find places for stations
@@ -126,6 +127,8 @@ class road_connector_t extends node_t
 
 					local i = 0
 
+					print("build 1 of " + planned_convoy.nr_convoys + " planned convoys")
+
 					depot.append_vehicle(pl, convoy_x(0), planned_convoy.veh[0])
 					// find the newly created convoy
 					local cnv_list = depot.get_convoy_list()
@@ -174,7 +177,10 @@ class road_connector_t extends node_t
 				}
 
 		}
-		return r_t(RT_SUCCESS)
+		local toc = get_ops_total();
+		print("road_connector wasted " + (toc-tic) + " ops")
+
+		return r_t(RT_TOTAL_SUCCESS)
 	}
 
 	function get_tiles_near_factory(factory)
