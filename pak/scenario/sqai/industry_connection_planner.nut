@@ -62,14 +62,14 @@ class industry_connection_planner_t extends node_t
 		if (planned_way == null) {
 			local way_list = way_desc_x.get_available_ways(wt_road)
 			local best_way = null
-			local best = -1
+			local best = null
 
 			foreach(way in way_list) {
 				cnv_valuator.way_maintenance = way.get_maintenance()
 				cnv_valuator.way_max_speed   = way.get_topspeed()
 
 				local test = cnv_valuator.valuate_monthly_transport(planned_convoy)
-				if (test > best) {
+				if (best == null  ||  test > best) {
 					best = test
 					best_way = way
 				}
