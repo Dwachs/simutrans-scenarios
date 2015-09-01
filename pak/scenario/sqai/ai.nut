@@ -2,15 +2,12 @@
 factory_production_x.scaling <- 0
 
 
-/// specify the savegame to load
-map.file = "<attach>"
-
 /// short description to be shown in finance window
 /// and in standard implementation of get_about_text
-scenario.short_description = "Test AI player implementation"
+ai.short_description = "Test AI player implementation"
 
-scenario.author = "dwachs"
-scenario.version = "0.1"
+ai.author = "dwachs"
+ai.version = "0.1"
 
 // includes
 include("basic")
@@ -30,19 +27,26 @@ tree <- {}
 factorysearcher <- null
 industry_manager <- null
 
-function start()
+function start(pl_nr = -1)
 {
-	for(local i = 14; i > 1; i--) {
-		if (player_x(i).is_active()) {
-			our_player = i
-			print("Take over player " + i)
+	print("player number " + pl_nr)
+	if (pl_nr == -1) {
+		for(local i = 14; i > 1; i--) {
+			if (player_x(i).is_active()) {
+				our_player = i
+				print("Take over player " + i)
+			}
+		}
+		if (our_player == -1) {
+			our_player = 0
 		}
 	}
-	if (our_player == -1) {
-		our_player = 0
+	else {
+		our_player = pl_nr
 	}
 	info_text += "Playing as player " + our_player + "<br><br><br>"
 
+	print(info_text)
 	init()
 
 	factorysearcher = factorysearcher_t()
@@ -68,14 +72,6 @@ function init()
 			station_buildings.rawget(wt).append(val)
 		}
 	}
-}
-
-function is_scenario_completed(pl)
-{
-	if (our_player > -1) {
-		step()
-	}
-	return 99;
 }
 
 info_text <- ""
