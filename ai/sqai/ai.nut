@@ -4,10 +4,13 @@ factory_production_x.scaling <- 0
 
 /// short description to be shown in finance window
 /// and in standard implementation of get_about_text
-ai.short_description = "Test AI player implementation"
+ai <- {}
+ai.short_description <- "Test AI player implementation"
 
-ai.author = "dwachs"
-ai.version = "0.1"
+ai.author <-"dwachs"
+ai.version <- "0.1"
+
+
 
 // includes
 include("basic")
