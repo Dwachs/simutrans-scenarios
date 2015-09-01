@@ -39,6 +39,8 @@ function start()
 		}
 	}
 	our_player = 0
+	info_text += "Playing as player " + our_player + "<br><br><br>"
+
 	init()
 
 	factorysearcher = factorysearcher_t()
@@ -74,9 +76,11 @@ function is_scenario_completed(pl)
 	return 99;
 }
 
+info_text <- ""
+
 function get_info_text(pl)
 {
-	return "Playing as player " + our_player
+	return info_text
 }
 
 function get_goal_text(pl)

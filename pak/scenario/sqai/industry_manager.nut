@@ -50,6 +50,14 @@ class industry_manager_t extends manager_t
 			l.state = state
 			link_list.rawset(k, l)
 		}
+		if (state == industry_link_t.st_built) {
+			local text = ""
+			text = "Transport " + translate(fre) + " from "
+			text += coord(src.x, src.y).href(src.get_name()) + " to "
+			text += coord(des.x, des.y).href(des.get_name()) + "<br>"
+
+			info_text += text
+		}
 	}
 
 	function get_link_state(src, des, fre)
