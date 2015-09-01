@@ -1,4 +1,4 @@
-class road_connector_t extends node_t
+class road_connector_t extends manager_t
 {
 	// input data
 	fsrc = null
@@ -25,9 +25,9 @@ class road_connector_t extends node_t
 		debug = true
 	}
 
-	// TODO cache forbidden etc connections
-	function step()
+	function work()
 	{
+		// TODO check if child does the right thing
 		local pl = player_x(our_player)
 		local tic = get_ops_total();
 
@@ -128,63 +128,23 @@ class road_connector_t extends node_t
 					c_line.change_schedule(pl, c_sched);
 					phase ++
 				}
-			case 8: // create the convoy (and the first vehicles)
+			case 8: // append vehicle_constructor
 				{
-					local depot = depot_x(c_depot.x, c_depot.y, c_depot.z)
-					c_depot = depot
+					local c = vehicle_constructor_t()
+					c.p_depot  = depot_x(c_depot.x, c_depot.y, c_depot.z)
+					c.p_line   = c_line
+					c.p_convoy = planned_convoy
+					c.p_count  = min(planned_convoy.nr_convoys, 3)
+					append_child(c)
 
-					local i = 0
-
-					depot.append_vehicle(pl, convoy_x(0), planned_convoy.veh[0])
-					// find the newly created convoy
-					local cnv_list = depot.get_convoy_list()
-					foreach(cnv in cnv_list) {
-						if (!cnv.get_line().is_valid()  &&  cnv.get_waytype()==wt_road) {
-							// now test for equal vehicles
-							local vlist = cnv.get_vehicles()
-							local len = vlist.len()
-							if (len <= planned_convoy.veh.len()) {
-								local equal = true;
-
-								for (local i=0; equal  &&  i<len; i++) {
-									equal = vlist[i].is_equal(planned_convoy.veh[i])
-								}
-								if (equal) {
-									// take this!
-									c_cnv = cnv
-									break
-								}
-							}
-						}
-					}
-					phase ++
-				}
-			case 9: // complete the convoy
-				{
-					local vlist = c_cnv.get_vehicles()
-					local i = 1;
-					while (vlist.len() < planned_convoy.veh.len())
-					{
-						c_depot.append_vehicle(pl, c_cnv, planned_convoy.veh[ vlist.len() ])
-						vlist = c_cnv.get_vehicles()
-					}
+					local toc = get_ops_total();
+					print("road_connector wasted " + (toc-tic) + " ops")
 
 					phase ++
-				}
-			case 10: // set line
-				{
-					c_cnv.set_line(pl, c_line)
-					phase ++
-				}
-			case 11: // start
-				{
-					c_depot.start_convoy(pl, c_cnv)
-					phase ++
+					return r_t(RT_PARTIAL_SUCCESS)
 				}
 
 		}
-		local toc = get_ops_total();
-		print("road_connector wasted " + (toc-tic) + " ops")
 
 		industry_manager.set_link_state(fsrc, fdest, freight, industry_link_t.st_built);
 

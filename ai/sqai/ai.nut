@@ -19,6 +19,7 @@ include("industry_connection_planner")
 include("industry_manager")
 include("prototyper")
 include("road_connector")
+include("vehicle_constructor")
 
 // global variables
 persistent.our_player <- -1
