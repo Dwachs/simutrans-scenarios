@@ -38,7 +38,9 @@ function start()
 			print("Take over player " + i)
 		}
 	}
-	our_player = 0
+	if (our_player == -1) {
+		our_player = 0
+	}
 	info_text += "Playing as player " + our_player + "<br><br><br>"
 
 	init()
@@ -93,7 +95,7 @@ function get_goal_text(pl)
 
 
 _step <- 0
-_next_construction_step <- 41
+_next_construction_step <- 0
 
 function step()
 {
@@ -106,7 +108,7 @@ function step()
 		if (r   &&  r.action) {
 			tree.append_child(r.action)
 		}
-		_next_construction_step += 53 + (_step % 37)
+		_next_construction_step += 1 + (_step % 3)
 	}
 
 	// ??
