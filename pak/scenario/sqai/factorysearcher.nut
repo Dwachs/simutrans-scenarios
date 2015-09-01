@@ -49,7 +49,7 @@ class factorysearcher_t extends manager_t
 		dbgprint("Connect  " + froot.get_name() + " at " + froot.x + "," + froot.y)
 
 		// find link to connect
-		if (find_missing_link(froot)) {
+		if (find_missing_link(froot)  &&  fsrc) {
 			dbgprint("Close link for " + freight + " from " + fsrc.get_name() + " at " + fsrc.x + "," + fsrc.y + " to "+ fdest.get_name() + " at " + fdest.x + "," + fdest.y)
 
 
@@ -191,38 +191,43 @@ class factorysearcher_t extends manager_t
 				dbgprint(".. enough supply of " + good)
 				continue
 			}
+			local exist_connection = false
 			// find suitable supplier
 			foreach(s in suppliers) {
 
+				if ( !(good in s.output)) continue;
+
 				// connection forbidden?
-				if (industry_manager.get_link_state(s, fab, good) != industry_link_t.st_free) {
+				local state = industry_manager.get_link_state(s, fab, good)
+				if (state != industry_link_t.st_free) {
+					if (state == industry_link_t.st_built) {
+						exist_connection = true;
+					}
 					// already built/planned
 					dbgprint(".. connection for " + good + " from " + s.get_name() + " to " + fab.get_name() + " already planned")
 					continue
 				}
 
-				local oslot = null
-				try {
-					oslot = s.output.rawget(good)
-				}
-				catch(ev) {
-					// this good is not produced
-					dbgprint(".. " + good + " is not produced at  " + fab.get_name() + " already planned")
-					continue
-				}
+				local oslot = s.output.rawget(good)
 
 				dbgprint(".. Factory " + s.get_name() + " at " + s.x + "," + s.y + " supplies " + good)
 
-				if (s.input.len()>0  &&  ( 8*oslot.get_storage()[0] < oslot.max_storage ) ) {
+				if (8*oslot.get_storage()[0] > oslot.max_storage) {
+					// this is our link
+					fsrc = s
+					fdest = fab
+					freight = good
+					return true
+				}
+				else {
 					// better try to complete this link
 					if (find_missing_link(s)) return true;
 				}
-				// this is our link
-				fsrc = s
-				fdest = fab
-				freight = good
-				return true
 			}
+// 			if (!exist_connection) {
+// 				fsrc = null
+// 				return true
+// 			}
 		}
 		return false // all links are connected
 	}
