@@ -49,7 +49,7 @@ class road_connector_t extends node_t
 					local w = command_x(tool_build_way);
 					local err = w.work(pl, c_start, c_end, planned_way.get_name() )
 					if (err) {
-						print("Error " + err)
+						print("Failed to build way from " + coord_to_string(c_start)+ " to " + coord_to_string(c_end))
 						error_handler()
 						return r_t(RT_TOTAL_FAIL)
 					}
@@ -60,11 +60,16 @@ class road_connector_t extends node_t
 					local w = command_x(tool_build_station);
 					local err = w.work(pl, c_start, planned_station.get_name() )
 					if (err) {
-						print("Error " + err)
+						print("Failed to build station at " + coord_to_string(c_start))
 						error_handler()
 						return r_t(RT_TOTAL_FAIL)
 					}
 					local err = w.work(pl, c_end, planned_station.get_name() )
+					if (err) {
+						print("Failed to build station at " + coord_to_string(c_end))
+						error_handler()
+						return r_t(RT_TOTAL_FAIL)
+					}
 					phase ++
 				}
 			case 3: // find depot place
@@ -80,7 +85,7 @@ class road_connector_t extends node_t
 					local w = command_x(tool_build_way);
 					local err = w.work(pl, c_start, c_depot, planned_way.get_name() )
 					if (err) {
-						print("Error " + err)
+						print("Failed to depot access from " + coord_to_string(c_start)+ " to " + coord_to_string(c_depot))
 						error_handler()
 						return r_t(RT_TOTAL_FAIL)
 					}
@@ -91,7 +96,7 @@ class road_connector_t extends node_t
 					local w = command_x(tool_build_depot);
 					local err = w.work(pl, c_depot, planned_depot.get_name() )
 					if (err) {
-						print("Error " + err)
+						print("Failed to build depot at " + coord_to_string(c_depot))
 						error_handler()
 						return r_t(RT_TOTAL_FAIL)
 					}
@@ -125,13 +130,10 @@ class road_connector_t extends node_t
 				}
 			case 8: // create the convoy (and the first vehicles)
 				{
-					print("look for depot at " + coord_to_string(c_depot))
 					local depot = depot_x(c_depot.x, c_depot.y, c_depot.z)
 					c_depot = depot
 
 					local i = 0
-
-					print("build 1 of " + planned_convoy.nr_convoys + " planned convoys")
 
 					depot.append_vehicle(pl, convoy_x(0), planned_convoy.veh[0])
 					// find the newly created convoy
