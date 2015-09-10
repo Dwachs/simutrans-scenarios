@@ -60,7 +60,7 @@ class industry_connection_planner_t extends node_t
 		local r = report_t()
 		// plan way
 		if (planned_way == null) {
-			local way_list = way_desc_x.get_available_ways(wt_road)
+			local way_list = way_desc_x.get_available_ways(wt_road, st_flat)
 			local best_way = null
 			local best = null
 
