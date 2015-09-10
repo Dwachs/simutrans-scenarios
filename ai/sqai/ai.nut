@@ -31,6 +31,11 @@ tree <- {}
 factorysearcher <- null
 industry_manager <- null
 
+possible_names <- ["Petersil Cars", "Teumer Alp Dream Trucks", "Runk & Strunk Transports", "A. Nach B. Transports", "Interflug Fourwheelers",
+	"Pfarnest International", "Suboptimal Transports", "Conveyor Belts & Braces", "Bucket Brigade Inc.",
+	"Maggikraut AG", "Bugs & Eggs Unlimited", "S. Claus & R. Deer Worldwide", "Leiterwagn & Sons"
+			]
+
 function start(pl_nr = -1)
 {
 	print("player number " + pl_nr)
@@ -49,6 +54,10 @@ function start(pl_nr = -1)
 		our_player = pl_nr
 	}
 	info_text += "Playing as player " + our_player + "<br><br><br>"
+
+	if (our_player > 0  &&  our_player-1 < possible_names.len()) {
+		player_x(our_player).set_name( possible_names[our_player-1]);
+	}
 
 	print(info_text)
 	init()
