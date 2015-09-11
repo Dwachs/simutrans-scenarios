@@ -1,9 +1,10 @@
 // account for changes in scenario_base
 factory_production_x.scaling <- 0
 
+// TODO obey construction speed setting
+// TODO check allowed transport types
 
-/// short description to be shown in finance window
-/// and in standard implementation of get_about_text
+// some meta data
 ai <- {}
 ai.short_description <- "Test AI player implementation"
 
@@ -22,9 +23,11 @@ include("road_connector")
 include("vehicle_constructor")
 
 // global variables
-persistent.our_player <- -1
+persistent.our_player_nr <- -1
 
-our_player <- persistent.our_player.weakref()
+our_player_nr <- -1
+our_player    <- null // player_x instance
+
 
 tree <- {}
 
@@ -35,32 +38,19 @@ possible_names <- ["Petersil Cars", "Teumer Alp Dream Trucks", "Runk & Strunk Tr
 	"Pfarnest International", "Suboptimal Transports", "Conveyor Belts & Braces", "Bucket Brigade Inc.",
 	"Maggikraut AG", "Bugs & Eggs Unlimited", "S. Claus & R. Deer Worldwide", "Leiterwagn & Sons"
 			]
+// 2.. 14 = 13 names
 
-function start(pl_nr = -1)
+function start(pl_nr)
 {
-	print("player number " + pl_nr)
-	if (pl_nr == -1) {
-		for(local i = 14; i > 1; i--) {
-			if (player_x(i).is_active()) {
-				our_player = i
-				print("Take over player " + i)
-			}
-		}
-		if (our_player == -1) {
-			our_player = 0
-		}
-	}
-	else {
-		our_player = pl_nr
-	}
-	info_text += "Playing as player " + our_player + "<br><br><br>"
+	our_player_nr = pl_nr
 
-	if (our_player > 0  &&  our_player-1 < possible_names.len()) {
-		player_x(our_player).set_name( possible_names[our_player-1]);
+	if (our_player_nr > 1  &&  our_player_nr-2 < possible_names.len()) {
+		player_x(our_player_nr).set_name( possible_names[our_player_nr-2]);
 	}
+	our_player = player_x(our_player_nr)
 
-	print(info_text)
-	init()
+	info_text  +="Act as player no " + our_player_nr + " under the name " + our_player.get_name() + ". <br>"
+	print("Act as player no " + our_player_nr + " under the name " + our_player.get_name())
 
 	factorysearcher = factorysearcher_t()
 	industry_manager = industry_manager_t()
@@ -70,39 +60,8 @@ function start(pl_nr = -1)
 
 station_buildings <- {}
 
-// called from start and resume_game
-function init()
-{
-	// filter station buildings
-	local s = building_desc_x.get_building_list(building_desc_x.station)
-	foreach(val in s) {
-		if (val.get_type() == building_desc_x.station) {
-			local wt = val.get_waytype()
-
-			if (!(wt in station_buildings)) {
-				station_buildings.rawset(wt, [])
-			}
-			station_buildings.rawget(wt).append(val)
-		}
-	}
-}
 
 info_text <- ""
-
-function get_info_text(pl)
-{
-	return info_text
-}
-
-function get_goal_text(pl)
-{
-	return @"
-	-- who checks timeline for stuff to be built? <br>
-	-- hash for coordinates
-	"
-}
-
-
 _step <- 0
 _next_construction_step <- 0
 

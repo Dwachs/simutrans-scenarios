@@ -28,7 +28,7 @@ class road_connector_t extends manager_t
 	function work()
 	{
 		// TODO check if child does the right thing
-		local pl = player_x(our_player)
+		local pl = our_player
 		local tic = get_ops_total();
 
 		switch(phase) {
@@ -85,7 +85,7 @@ class road_connector_t extends manager_t
 					local w = command_x(tool_build_way);
 					local err = w.work(pl, c_start, c_depot, planned_way.get_name() )
 					if (err) {
-						print("Failed to depot access from " + coord_to_string(c_start)+ " to " + coord_to_string(c_depot))
+						print("Failed to build depot access from " + coord_to_string(c_start)+ " to " + coord_to_string(c_depot))
 						error_handler()
 						return r_t(RT_TOTAL_FAIL)
 					}
