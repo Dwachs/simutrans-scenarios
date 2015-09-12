@@ -130,6 +130,8 @@ class industry_connection_planner_t extends node_t
 
 		dbgprint("Plan: way = " + planned_way.get_name() + ", station = " + planned_station.get_name() + ", depot = " + planned_depot.get_name());
 		dbgprint("Report: gain_per_m  = " + r.gain_per_m + ", nr_convoys  = " + r.nr_convoys + ", cost_fix  = " + r.cost_fix + ", cost_monthly  = " + r.cost_monthly)
+		dbgprint("Report: dist = " + cnv_valuator.distance+ " way_cost = " + planned_way.get_cost())
+		dbgprint("Report: staion = " + planned_station.get_cost()+ " depot = " + planned_depot.get_cost())
 
 		// deliver it
 		local r = r_t(RT_READY)

@@ -56,6 +56,7 @@ function start(pl_nr)
 	industry_manager = industry_manager_t()
 
 	tree = factorysearcher
+
 }
 
 station_buildings <- {}
@@ -74,6 +75,7 @@ function step()
 	if (_step > _next_construction_step) {
 		local r = factorysearcher.get_report()
 		if (r   &&  r.action) {
+			print("New report: expected construction cost: " + (r.cost_fix / 100.0))
 			tree.append_child(r.action)
 		}
 		_next_construction_step += 1 + (_step % 3)
@@ -92,3 +94,7 @@ function compare_coord(c1, c2)
 	return res
 }
 
+function is_cash_available(cost /* in 1/100 cr */)
+{
+	return 2*cost + 2*our_player.get_current_maintenance() < our_player.get_current_net_wealth()
+}

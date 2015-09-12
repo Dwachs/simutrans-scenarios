@@ -147,19 +147,28 @@ class manager_t extends node_seq_t
 	{
 		if (reports.len() == 0) return null
 		// find report that maximizes gain_per_m / cost_fix
-		local i = 0
-		local best = reports[i]
+		local i = -1
+		local best = null
 
-		for(local j=1; j<reports.len(); j++) {
+		for(local j=0; j<reports.len(); j++) {
 			local test = reports[j]
-			if ( (best.gain_per_m * test.cost_fix < test.gain_per_m * best.cost_fix)
+			// check account balance
+			if (!is_cash_available(test.cost_fix)) {
+				// too expensive
+				continue
+			}
+
+			if ( best == null
+				|| (best.gain_per_m * test.cost_fix < test.gain_per_m * best.cost_fix)
 				|| (test.cost_fix == 0  &&  best.cost_fix == 0  &&   best.gain_per_m < test.gain_per_m) )
 			{
 				best = test
 				i = j
 			}
 		}
-		reports.remove(i)
+		if (best) {
+			reports.remove(i)
+		}
 		return best
 	}
 }
