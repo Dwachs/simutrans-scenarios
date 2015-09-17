@@ -45,6 +45,16 @@ class cnv_proto_t
 
 		return cnv
 	}
+
+	static function from_convoy(cnv, freight)
+	{
+		local p = cnv_proto_t()
+		local list = cnv.get_vehicles()
+		foreach(v in list) {
+			p = p.append(v, freight)
+		}
+		return p
+	}
 }
 
 class prototyper_t extends node_t

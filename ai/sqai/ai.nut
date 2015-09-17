@@ -12,6 +12,8 @@ ai.author <-"dwachs"
 ai.version <- "0.1"
 
 
+sum <- @(a,b) a+b
+
 
 // includes
 include("basic")
@@ -55,7 +57,9 @@ function start(pl_nr)
 	factorysearcher = factorysearcher_t()
 	industry_manager = industry_manager_t()
 
-	tree = factorysearcher
+	tree = node_seq_t("Root")
+	tree.append_child(factorysearcher)
+	tree.append_child(industry_manager)
 
 }
 
@@ -68,6 +72,7 @@ _next_construction_step <- 0
 
 function step()
 {
+	local t = tree
 	tree.step()
 	_step++
 

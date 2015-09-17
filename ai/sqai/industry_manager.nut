@@ -2,9 +2,10 @@ class industry_link_t
 {
 	f_src   = null // factory_x
 	f_dest  = null // factory_x
-	freight = null // string
+	freight = null // good_desc_x
 
 	state = 0
+	lines = null
 
 	static st_free    = 0 /// not registered
 	static st_planned = 1 /// link is planned
@@ -15,7 +16,13 @@ class industry_link_t
 	{
 		f_src = s
 		f_dest = d
-		freight = f
+		freight = good_desc_x(f)
+		lines = []
+	}
+
+	function append_line(l)
+	{
+		lines.append(l)
 	}
 }
 
@@ -24,9 +31,11 @@ class industry_link_t
 class industry_manager_t extends manager_t
 {
 	link_list = null
+	link_iterator = null
 
 	constructor()
 	{
+		base.constructor("industry_manager")
 		link_list = {}
 	}
 
@@ -62,16 +71,199 @@ class industry_manager_t extends manager_t
 
 	function get_link_state(src, des, fre)
 	{
-		local k = key(src, des, fre)
+		local link = access_link(src, des, fre)
 
+		return link  ?  link.state  :  industry_link_t.st_free
+	}
+
+	function access_link(src, des, fre)
+	{
+		local k = key(src, des, fre)
 		local res
 		try {
-			res = link_list.rawget(k).state
+			res = link_list.rawget(k)
 		}
 		catch(ev) {
-			res = industry_link_t.st_free
+			res = null
 		}
-		local toc = get_ops_total()
 		return res
 	}
+
+	function work()
+	{
+		// iterate the link_iterator, which is a generator
+		if (link_iterator == null) {
+			// this is a generator
+			link_iterator = link_iteration()
+		}
+		if (link_iterator.getstatus() != "dead") {
+			resume link_iterator
+		}
+		else {
+			link_iterator = null
+			return r_t(RT_SUCCESS);
+		}
+		return r_t(RT_PARTIAL_SUCCESS);
+	}
+
+	function link_iteration()
+	{
+		foreach(link in link_list) {
+			check_link(link)
+			yield link
+		}
+	}
+
+	function check_link(link)
+	{
+		if (link.state != industry_link_t.st_built  ||  link.lines.len()==0) {
+			return
+		}
+		local line = link.lines[0]
+		print("Check line " + line.get_name())
+		// find convoy
+		local cnv = null
+		local cnv_count = 0
+		{
+			local list = line.get_convoy_list()
+			cnv_count = list.get_count()
+			if (cnv_count == 0) {
+				return
+			}
+			cnv = list[0]
+		}
+		local lf = link.freight
+		// capacity of convoy
+		local capacity = 0
+		{
+ 			local lf = link.freight
+			foreach(v in cnv.get_vehicles()) {
+				local f = v.get_freight()
+				if (lf.is_interchangeable(f)) {
+					capacity += v.get_capacity()
+				}
+			}
+		}
+		print("Capacity of convoy " + cnv.get_name() + " = " + capacity)
+		print("Speed of convoy " + cnv.get_name() + " = " + cnv.get_speed())
+
+		// iterate through schedule, check for available freight
+		local freight_available = false
+		{
+			local entries = cnv.get_schedule().entries
+			local i = 0;
+
+			while(i < entries.len()  &&  !freight_available) {
+				local entry = entries[i]
+				// stations on schedule
+				local halt = entry.get_halt(our_player)
+				if (halt == null) continue
+
+				// next station on schedule
+				local nexthalt = null
+				i++
+				while(i < entries.len()) {
+					if (nexthalt = entries[i].get_halt(our_player)) break
+					i++
+				}
+				if (nexthalt == null) {
+					nexthalt = entries[0].get_halt(our_player)
+				}
+				// freight available ?
+				local freight_on_schedule = halt.get_freight_to_halt(lf, nexthalt)
+				local capacity_halt = halt.get_capacity(lf)
+				print("Freight from " + halt.get_name() + " to " + nexthalt.get_name() + " = " + freight_on_schedule)
+				// either start is 2/3 full or more good available as one cnv can transport
+				freight_available = (3*freight_on_schedule > 2*capacity_halt)
+					|| (freight_on_schedule > capacity);
+			}
+		}
+
+		// calc gain per month of one convoy
+		local gain_per_m = 0
+		{
+			local p = line.get_profit()
+			gain_per_m = p.reduce(sum) / (p.len() * cnv_count)
+			print("Gain pm = " + gain_per_m)
+		}
+
+		// check state if convoys (loading level, stopped, new)
+		local cc_load  = 0
+		local cc_stop  = 0
+		local cc_new   = 0
+		local cc_empty = 0
+		local cnv_empty_stopped = null
+		{
+			local list = line.get_convoy_list()
+			foreach(c in list)
+			{
+				// convoy empty?
+				local is_empty = c.get_loading_level() == 0
+				// convoy new? less than 2 months old, and not much transported
+				local d = c.get_traveled_distance()
+				local is_new = (d[0] + d[1] == c.get_distance_traveled_total())
+				if (is_new) {
+					local t = c.get_transported_goods();
+					if (t.reduce(sum) >= 2*capacity) {
+						is_new = false
+					}
+				}
+				if (is_new) {
+					cc_new ++
+					 is_empty = false
+				}
+				// new convoys do not count as empty
+				if (is_empty) {
+					cc_empty++
+				}
+				// convoy stopped? but not for loading
+				local is_stopped = false
+				if (c.get_speed() == 0) {
+					if (c.get_loading_limit() > 0) {
+						// loading
+						cc_load ++
+					}
+					else {
+						cc_stop ++
+						is_stopped = true;
+					}
+				}
+
+				if (is_empty  &&  is_stopped  &&  cnv_empty_stopped==null) {
+					cnv_empty_stopped = c
+				}
+			}
+		}
+		print("Line:  loading = " + cc_load + ", stopped = " + cc_stop + ", new = " + cc_new + ", empty = " + cc_empty)
+		print("")
+
+		if (freight_available  &&  cc_new == 0  &&  cc_stop < 2) {
+
+			if (gain_per_m > 0) {
+				// directly append
+				// TODO put into report
+				local proto = cnv_proto_t.from_convoy(cnv, lf)
+				local depot = cnv.get_home_depot()
+
+				local c = vehicle_constructor_t()
+
+				c.p_depot  = depot_x(depot.x, depot.y, depot.z)
+				c.p_line   = line
+				c.p_convoy = proto
+				c.p_count  = 1
+				append_child(c)
+				print("==> build additional convoy")
+			}
+		}
+		if (!freight_available  &&  cnv_count>1  &&  2*cc_empty >= cnv_count  &&  cnv_empty_stopped) {
+			// freight, lots of empty and of stopped vehicles
+			// -> something is blocked, maybe we block our own supply?
+			// delete one convoy
+			cnv_empty_stopped.destroy(our_player)
+			print("==> destroy empty convoy")
+		}
+		print("")
+
+	}
+
 }

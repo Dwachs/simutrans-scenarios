@@ -153,7 +153,8 @@ class road_connector_t extends manager_t
 
 		}
 
-		industry_manager.set_link_state(fsrc, fdest, freight, industry_link_t.st_built);
+		industry_manager.set_link_state(fsrc, fdest, freight, industry_link_t.st_built)
+		industry_manager.access_link(fsrc, fdest, freight).append_line(c_line)
 
 		return r_t(RT_TOTAL_SUCCESS)
 	}
