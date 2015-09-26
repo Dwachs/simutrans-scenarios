@@ -10,6 +10,7 @@ const RT_TOTAL_FAIL      = 24 // RT_ERROR | RT_KILL_ME
 const RT_READY           = 29 // RT_DONE_NOTHING | RT_SUCCESS | RT_ERROR | RT_KILL_ME
 // }
 
+
 // basic return codes / data from steps
 class r_t
 {
@@ -31,7 +32,7 @@ class node_t {
 
 	function step() { return r_t(RT_TOTAL_FAIL)}
 
-	constructor(n)
+	constructor(n = "node_t")
 	{
 		name = n
 	}
@@ -39,6 +40,11 @@ class node_t {
 	{
 		if (debug) print(name + ": " + t)
 	}
+	function _save()
+	{
+		return ::saveinstance(name, this)
+	}
+
 }
 
 /**
@@ -49,7 +55,7 @@ class node_seq_t extends node_t
 	nodes = null
 	next_to_step = 0
 
-	constructor(n)
+	constructor(n = "node_seq_t")
 	{
 		base.constructor(n)
 		nodes = []
@@ -111,6 +117,11 @@ class report_t
 	function merge_report(r)
 	{
 		// TODO
+	}
+
+	function _save()
+	{
+		return ::saveinstance("report_t", this)
 	}
 }
 

@@ -4,18 +4,18 @@ function abs(a) { return a >= 0 ? a : -a }
 
 class industry_connection_planner_t extends node_t
 {
-	fsrc = null
-	fdest = null
-	freight = null
+	fsrc = null       // factory_x
+	fdest = null      // factory_x
+	freight = null    // string
 
 	// planned stuff
-	planned_way = null
-	planned_station = null
-	planned_depot = null
-	planned_convoy = null
-	plan_report = null
+	planned_way = null      // way_desc_x
+	planned_station = null  // building_desc_x
+	planned_depot = null    // building_desc_x
+	planned_convoy = null   // prototyper_t
+	plan_report = null      // report_t
 
-	constructor(s,d,f) { base.constructor("industry_connection_planner"); fsrc = s; fdest = d; freight = f; }
+	constructor(s,d,f) { base.constructor("industry_connection_planner_t"); fsrc = s; fdest = d; freight = f; }
 
 	function step()
 	{

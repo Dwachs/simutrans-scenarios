@@ -55,6 +55,11 @@ class cnv_proto_t
 		}
 		return p
 	}
+
+	function _save()
+	{
+		return ::saveinstance("cnv_proto_t", this)
+	}
 }
 
 class prototyper_t extends node_t
@@ -248,5 +253,10 @@ class valuator_simple_t {
 		local value = ncnv*( (frev*cnv.capacity+1500)/3000*tpm/2 - cnv.running_cost*tpm - cnv.maintenance) - distance * way_maintenance
 
 		return value
+	}
+
+	function _save()
+	{
+		return ::saveinstance("valuator_simple_t", this)
 	}
 }

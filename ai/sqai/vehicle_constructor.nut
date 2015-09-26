@@ -14,7 +14,7 @@ class vehicle_constructor_t extends node_t
 
 	constructor()
 	{
-		base.constructor("vehicle_constructor")
+		base.constructor("vehicle_constructor_t")
 		debug = true
 	}
 
@@ -52,7 +52,6 @@ class vehicle_constructor_t extends node_t
 			case 1: // complete the convoy
 				{
 					local vlist = c_cnv.get_vehicles()
-					local i = 1;
 					while (vlist.len() < p_convoy.veh.len())
 					{
 						p_depot.append_vehicle(pl, c_cnv, p_convoy.veh[ vlist.len() ])

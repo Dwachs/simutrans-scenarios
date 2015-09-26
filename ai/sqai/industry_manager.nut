@@ -5,7 +5,7 @@ class industry_link_t
 	freight = null // good_desc_x
 
 	state = 0
-	lines = null
+	lines = null   // array<line_x>
 
 	static st_free    = 0 /// not registered
 	static st_planned = 1 /// link is planned
@@ -24,6 +24,10 @@ class industry_link_t
 	{
 		lines.append(l)
 	}
+	function _save()
+	{
+		return ::saveinstance("industry_link_t", this)
+	}
 }
 
 
@@ -35,15 +39,15 @@ class industry_manager_t extends manager_t
 
 	constructor()
 	{
-		base.constructor("industry_manager")
+		base.constructor("industry_manager_t")
 		link_list = {}
 	}
 
 	/// Generate unique key from link data
 	static function key(src, des, fre)
 	{
-		return translate(fre) + "-from-" + src.get_name() + coord_to_string(src)
-		                      + "-to-" + des.get_name() + coord_to_string(des)
+		return (translate(fre) + "-from-" + src.get_name() + coord_to_string(src)
+		                       + "-to-" + des.get_name() + coord_to_string(des) ).toalnum()
 	}
 
 	function set_link_state(src, des, fre, state)
@@ -264,6 +268,12 @@ class industry_manager_t extends manager_t
 		}
 		print("")
 
+	}
+
+	function _save()
+	{
+		link_iterator = null // wont save
+		return ::saveinstance("industry_manager_t", this)
 	}
 
 }

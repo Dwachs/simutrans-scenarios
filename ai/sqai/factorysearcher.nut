@@ -1,13 +1,13 @@
 class factorysearcher_t extends manager_t
 {
-	fsrc = null
-	fdest = null
-	freight = null
-	froot = null // complete this tree
+	fsrc = null     // factory_x
+	fdest = null    // factory_x
+	freight = null  // string
+	froot = null    // factory_x, complete this tree
 
 	constructor()
 	{
-		base.constructor("factorysearcher")
+		base.constructor("factorysearcher_t")
 		debug = false
 	}
 
