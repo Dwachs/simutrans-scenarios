@@ -85,7 +85,7 @@ class vehicle_constructor_t extends node_t
 	function check_convoy(cnv)
 	{
 		// check whether this convoy is for our purpose
-		if (!cnv.get_line().is_valid()  &&  cnv.get_waytype() == c_wt) {
+		if (cnv.get_line() == null  &&  cnv.get_waytype() == c_wt) {
 			// now test for equal vehicles
 			local vlist = cnv.get_vehicles()
 			local len = vlist.len()

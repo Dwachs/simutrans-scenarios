@@ -9,6 +9,7 @@ class factorysearcher_t extends manager_t
 	{
 		base.constructor("factorysearcher_t")
 		debug = false
+		::factorysearcher = this
 	}
 
 	function work()

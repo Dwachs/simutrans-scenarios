@@ -60,13 +60,26 @@ function start(pl_nr)
 	info_text  +="Act as player no " + our_player_nr + " under the name " + our_player.get_name() + ". <br>"
 	print("Act as player no " + our_player_nr + " under the name " + our_player.get_name())
 
-	factorysearcher = factorysearcher_t()
-	industry_manager = industry_manager_t()
+	init_tree()
+}
 
-	tree = node_seq_t()
-	tree.append_child(factorysearcher)
-	tree.append_child(industry_manager)
-	persistent.tree <- tree
+function init_tree()
+{
+	if (factorysearcher == null) {
+		factorysearcher = factorysearcher_t()
+	}
+	if (industry_manager == null) {
+		industry_manager = industry_manager_t()
+	}
+	if (!("tree" in persistent)) {
+		tree = node_seq_t()
+		tree.append_child(factorysearcher)
+		tree.append_child(industry_manager)
+		persistent.tree <- tree
+	}
+	else {
+		tree = persistent.tree
+	}
 }
 
 function resume_game(pl_nr)
@@ -75,7 +88,7 @@ function resume_game(pl_nr)
 	our_player_nr = pl_nr
 	our_player    = player_x(our_player_nr)
 
-	tree = persistent.tree
+	init_tree()
 
 	s = persistent.s
 }

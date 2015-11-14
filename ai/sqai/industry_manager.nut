@@ -41,6 +41,7 @@ class industry_manager_t extends manager_t
 	{
 		base.constructor("industry_manager_t")
 		link_list = {}
+		::industry_manager = this
 	}
 
 	/// Generate unique key from link data
