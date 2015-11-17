@@ -192,43 +192,35 @@ class factorysearcher_t extends manager_t
 				dbgprint(".. enough supply of " + good)
 				continue
 			}
-			local exist_connection = false
 			// find suitable supplier
 			foreach(s in suppliers) {
 
 				if ( !(good in s.output)) continue;
 
-				// connection forbidden?
+				// connection forbidden? planned? built?
 				local state = industry_manager.get_link_state(s, fab, good)
 				if (state != industry_link_t.st_free) {
-					if (state == industry_link_t.st_built) {
-						exist_connection = true;
+					if (state == industry_link_t.st_built  ||  state == industry_link_t.st_planned) {
+						dbgprint(".. connection for " + good + " from " + s.get_name() + " to " + fab.get_name() + " already "
+							   + (state == industry_link_t.st_built ? "built" : "planned") )
+						break
 					}
-					// already built/planned
-					dbgprint(".. connection for " + good + " from " + s.get_name() + " to " + fab.get_name() + " already planned")
-					continue
+					continue // if connection state is 'failed'
 				}
 
 				local oslot = s.output.rawget(good)
 
 				dbgprint(".. Factory " + s.get_name() + " at " + s.x + "," + s.y + " supplies " + good)
 
-				if (8*oslot.get_storage()[0] > oslot.max_storage) {
+				if (8*oslot.get_storage()[0] > oslot.max_storage  ||  !find_missing_link(s)) {
 					// this is our link
 					fsrc = s
 					fdest = fab
 					freight = good
-					return true
+					dbgprint(".. plan this connection")
 				}
-				else {
-					// better try to complete this link
-					if (find_missing_link(s)) return true;
-				}
+				return true
 			}
-// 			if (!exist_connection) {
-// 				fsrc = null
-// 				return true
-// 			}
 		}
 		return false // all links are connected
 	}
