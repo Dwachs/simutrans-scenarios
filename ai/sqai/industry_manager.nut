@@ -125,7 +125,7 @@ class industry_manager_t extends manager_t
 			return
 		}
 		local line = link.lines[0]
-		print("Check line " + line.get_name())
+		dbgprint("Check line " + line.get_name())
 		// find convoy
 		local cnv = null
 		local cnv_count = 0
@@ -149,8 +149,8 @@ class industry_manager_t extends manager_t
 				}
 			}
 		}
-		print("Capacity of convoy " + cnv.get_name() + " = " + capacity)
-		print("Speed of convoy " + cnv.get_name() + " = " + cnv.get_speed())
+		dbgprint("Capacity of convoy " + cnv.get_name() + " = " + capacity)
+		dbgprint("Speed of convoy " + cnv.get_name() + " = " + cnv.get_speed())
 
 		// iterate through schedule, check for available freight
 		local freight_available = false
@@ -177,7 +177,7 @@ class industry_manager_t extends manager_t
 				// freight available ?
 				local freight_on_schedule = halt.get_freight_to_halt(lf, nexthalt)
 				local capacity_halt = halt.get_capacity(lf)
-				print("Freight from " + halt.get_name() + " to " + nexthalt.get_name() + " = " + freight_on_schedule)
+				dbgprint("Freight from " + halt.get_name() + " to " + nexthalt.get_name() + " = " + freight_on_schedule)
 				// either start is 2/3 full or more good available as one cnv can transport
 				freight_available = (3*freight_on_schedule > 2*capacity_halt)
 					|| (freight_on_schedule > capacity);
@@ -189,7 +189,7 @@ class industry_manager_t extends manager_t
 		{
 			local p = line.get_profit()
 			gain_per_m = p.reduce(sum) / (p.len() * cnv_count)
-			print("Gain pm = " + gain_per_m)
+			dbgprint("Gain pm = " + gain_per_m)
 		}
 
 		// check state if convoys (loading level, stopped, new)
@@ -239,8 +239,8 @@ class industry_manager_t extends manager_t
 				}
 			}
 		}
-		print("Line:  loading = " + cc_load + ", stopped = " + cc_stop + ", new = " + cc_new + ", empty = " + cc_empty)
-		print("")
+		dbgprint("Line:  loading = " + cc_load + ", stopped = " + cc_stop + ", new = " + cc_new + ", empty = " + cc_empty)
+		dbgprint("")
 
 		if (freight_available  &&  cc_new == 0  &&  cc_stop < 2) {
 
@@ -257,7 +257,7 @@ class industry_manager_t extends manager_t
 				c.p_convoy = proto
 				c.p_count  = 1
 				append_child(c)
-				print("==> build additional convoy")
+				dbgprint("==> build additional convoy")
 			}
 		}
 		if (!freight_available  &&  cnv_count>1  &&  2*cc_empty >= cnv_count  &&  cnv_empty_stopped) {
@@ -265,9 +265,9 @@ class industry_manager_t extends manager_t
 			// -> something is blocked, maybe we block our own supply?
 			// delete one convoy
 			cnv_empty_stopped.destroy(our_player)
-			print("==> destroy empty convoy")
+			dbgprint("==> destroy empty convoy")
 		}
-		print("")
+		dbgprint("")
 
 	}
 

@@ -29,7 +29,6 @@ class factorysearcher_t extends manager_t
 				if (fab.output.len() == 0) {
 
 					local n = count_missing_factories(fab)
-					dbgprint("Consumer " + fab.get_name() + " at " + fab.x + "," + fab.y + " has " + n + " missing links")
 
 					if ((n > 0)  &&  (n < min_mfc)) {
 						// TODO add some random here
@@ -77,7 +76,7 @@ class factorysearcher_t extends manager_t
 	 * @returns -1 if factory tree is incomplete, otherwise number of missing connections
 	 */
 	// TODO cache the results per factory
-	static function count_missing_factories(fab)
+	static function count_missing_factories(fab, indent = "")
 	{
 		// source of raw material?
 		if (fab.input.len() == 0) return 0;
@@ -127,7 +126,7 @@ class factorysearcher_t extends manager_t
 
 					}
 
-					local n = count_missing_factories(s);
+					local n = count_missing_factories(s, indent + "  ");
 					if ( n<0) {
 						// incomplete tree
 					}
@@ -140,7 +139,7 @@ class factorysearcher_t extends manager_t
 			}
 
 			if (!g_complete  &&  !end_consumer) {
-				dbgprint("No supply of " + good + " for " + fab.get_name())
+				dbgprint(indent + "No supply of " + good + " for " + fab.get_name())
 				// no suppliers for this good
 				return -1
 			}
@@ -155,15 +154,15 @@ class factorysearcher_t extends manager_t
 				}
 // 				count = min(count, g_count) // only take the minimum of the subtrees
 			}
-			dbgprint("Supply of " + good + " for " + fab.get_name() + " has " + g_count + " missing links")
+			dbgprint(indent + "Supply of " + good + " for " + fab.get_name() + " has " + g_count + " missing links")
 		}
 
 		if (end_consumer  &&  !g_atleastone) {
-			dbgprint("No supply for " + fab.get_name())
+			dbgprint(indent + "No supply for " + fab.get_name())
 			count = -1
 		}
 
-		dbgprint("Factory " + fab.get_name() + " at " + fab.x + "," + fab.y + " has " + count + " missing links")
+		dbgprint(indent + "Factory " + fab.get_name() + " at " + fab.x + "," + fab.y + " has " + count + " missing links")
 		return count
 	}
 
@@ -172,9 +171,9 @@ class factorysearcher_t extends manager_t
 	 * sets fsrc, fdest, lgood if true was returned
 	 * @returns true if link is found
 	 */
-	function find_missing_link(fab)
+	function find_missing_link(fab, indent = "")
 	{
-		dbgprint("Missing link for factory " + fab.get_name() + " at " + fab.x + "," + fab.y)
+		dbgprint(indent + "Missing link for factory " + fab.get_name() + " at " + fab.x + "," + fab.y)
 		// source of raw material?
 		if (fab.input.len() == 0) return false;
 
@@ -189,7 +188,7 @@ class factorysearcher_t extends manager_t
 		foreach(good, islot in fab.input) {
 			// check for current supply
 			if ( 4*(islot.get_storage()[0] + islot.get_in_transit()[0]) > islot.max_storage) {
-				dbgprint(".. enough supply of " + good)
+				dbgprint(indent + ".. enough supply of " + good)
 				continue
 			}
 			// find suitable supplier
@@ -201,7 +200,7 @@ class factorysearcher_t extends manager_t
 				local state = industry_manager.get_link_state(s, fab, good)
 				if (state != industry_link_t.st_free) {
 					if (state == industry_link_t.st_built  ||  state == industry_link_t.st_planned) {
-						dbgprint(".. connection for " + good + " from " + s.get_name() + " to " + fab.get_name() + " already "
+						dbgprint(indent + ".. connection for " + good + " from " + s.get_name() + " to " + fab.get_name() + " already "
 							   + (state == industry_link_t.st_built ? "built" : "planned") )
 						break
 					}
@@ -210,14 +209,14 @@ class factorysearcher_t extends manager_t
 
 				local oslot = s.output.rawget(good)
 
-				dbgprint(".. Factory " + s.get_name() + " at " + s.x + "," + s.y + " supplies " + good)
+				dbgprint(indent + ".. Factory " + s.get_name() + " at " + s.x + "," + s.y + " supplies " + good)
 
-				if (8*oslot.get_storage()[0] > oslot.max_storage  ||  !find_missing_link(s)) {
+				if (8*oslot.get_storage()[0] > oslot.max_storage  ||  !find_missing_link(s, indent + "  ")) {
 					// this is our link
 					fsrc = s
 					fdest = fab
 					freight = good
-					dbgprint(".. plan this connection")
+					dbgprint(indent + ".. plan this connection")
 				}
 				return true
 			}
