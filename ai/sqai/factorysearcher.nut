@@ -1,8 +1,5 @@
 class factorysearcher_t extends manager_t
 {
-	fsrc = null     // factory_x
-	fdest = null    // factory_x
-	freight = null  // string
 	froot = null    // factory_x, complete this tree
 
 	constructor()
@@ -49,27 +46,26 @@ class factorysearcher_t extends manager_t
 		dbgprint("Connect  " + froot.get_name() + " at " + froot.x + "," + froot.y)
 
 		// find link to connect
-		if (find_missing_link(froot)  &&  fsrc) {
-			dbgprint("Close link for " + freight + " from " + fsrc.get_name() + " at " + fsrc.x + "," + fsrc.y + " to "+ fdest.get_name() + " at " + fdest.x + "," + fdest.y)
-
-
-			industry_manager.set_link_state(fsrc, fdest, freight, industry_link_t.st_planned);
-
-			local icp = industry_connection_planner_t(fsrc, fdest, freight);
-			append_child(icp)
-
-			// clear
-			fsrc = null
-			fdest = null
-			freight = null
-		}
-		else {
+		if (!find_missing_link(froot)) {
 			dbgprint(".. no missing link")
 			// no missing link found - reset froot
 			froot = null
 			return r_t(RT_SUCCESS);
 		}
 		return r_t(RT_PARTIAL_SUCCESS);
+	}
+
+	/**
+	 * Creates the planner node
+	 */
+	static function plan_connection(fsrc, fdest, freight)
+	{
+		dbgprint("Close link for " + freight + " from " + fsrc.get_name() + " at " + fsrc.x + "," + fsrc.y + " to "+ fdest.get_name() + " at " + fdest.x + "," + fdest.y)
+
+		industry_manager.set_link_state(fsrc, fdest, freight, industry_link_t.st_planned);
+
+		local icp = industry_connection_planner_t(fsrc, fdest, freight);
+		append_child(icp)
 	}
 
 	/**
@@ -213,10 +209,8 @@ class factorysearcher_t extends manager_t
 
 				if (8*oslot.get_storage()[0] > oslot.max_storage  ||  !find_missing_link(s, indent + "  ")) {
 					// this is our link
-					fsrc = s
-					fdest = fab
-					freight = good
 					dbgprint(indent + ".. plan this connection")
+					plan_connection(s, fab, good)
 				}
 				return true
 			}
