@@ -93,10 +93,7 @@ class industry_connection_planner_t extends node_t
 		// plan station
 		if (planned_station == null) {
 			local station_list = building_desc_x.get_available_stations(building_desc_x.station, wt_road, good_desc_x(freight))
-
-			if (station_list.len()) {
-				planned_station = station_list[0]
-			}
+			select_station(station_list)
 		}
 		// plan depot
 		if (planned_depot == null) {
@@ -155,5 +152,38 @@ class industry_connection_planner_t extends node_t
 
 		dbgprint("production = " + src_prod + " / " + dest_con);
 		return min(src_prod,dest_con)
+	}
+
+	function select_station(list)
+	{
+		local station_length = (planned_convoy.length + CARUNITS_PER_TILE - 1) / CARUNITS_PER_TILE
+		local capacity       =  planned_convoy.capacity
+
+		local station_capacity = 0
+		local station_is_terminus = false
+
+		foreach(station in list) {
+			local ok = (planned_station == null)
+			local s_capacity = station_length * station.get_capacity()
+
+			if (!ok  &&  station_length == 1) {
+				// prefer terminus
+				ok = station.is_terminus()  &&  !station_is_terminus
+				if (!ok) {
+					// then prefer stations with enough capacity
+					ok = station_capacity < capacity ? station_capacity < s_capacity
+					                                 : capacity < s_capacity  &&  s_capacity < station_capacity
+				}
+			}
+			if (station_length >  1) {
+				// force non-terminus
+				ok = !station_is_terminus
+			}
+			if (ok) {
+				planned_station = station
+				station_capacity = station.get_capacity()
+				station_is_terminus = station.is_terminus()
+			}
+		}
 	}
 }
