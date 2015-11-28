@@ -1,6 +1,8 @@
 class factorysearcher_t extends manager_t
 {
 	froot = null    // factory_x, complete this tree
+	method = -1
+	factory_iterator = null
 
 	constructor()
 	{
@@ -9,21 +11,52 @@ class factorysearcher_t extends manager_t
 		::factorysearcher = this
 	}
 
-	function work()
+	function get_next_end_consumer()
 	{
-		// root still has missing links?
-		if (froot) {
-			if (count_missing_factories(froot) <= 0) {
-				froot = null
+		// iterate the factory_iterator, which is a generator
+		if (factory_iterator == null) {
+			// this is a generator
+			factory_iterator = factory_iteration()
+		}
+		if (factory_iterator.getstatus() != "dead") {
+			return resume factory_iterator
+		}
+		factory_iterator = null
+		return null
+	}
+
+	function factory_iteration()
+	{
+		local list = factory_list_x()
+		foreach(factory in list) {
+			if (factory.output.len() == 0) {
+				yield factory
 			}
 		}
-		// determine new root
-		if (froot == null) {
-			// find factory with incomplete connected tree
-			local min_mfc = 10000;
-			local list = factory_list_x()
-			foreach(fab in list) {
-				if (fab.output.len() == 0) {
+	}
+
+	function work()
+	{
+		if (method < 0) {
+			method = our_player_nr % 2;
+			froot = null
+		}
+
+		if (method == 0) {
+			// traditional method, taken from C++ implementation
+			// of Freight AI
+
+			// root still has missing links?
+			if (froot  &&  count_missing_factories(froot) <= 0) {
+				froot = null
+			}
+			// determine new root
+			if (froot == null) {
+				// find factory with incomplete connected tree
+				local min_mfc = 10000;
+
+				local fab
+				while(fab = get_next_end_consumer()) {
 
 					local n = count_missing_factories(fab)
 
@@ -33,26 +66,45 @@ class factorysearcher_t extends manager_t
 						froot = fab
 					}
 				}
+				if (froot) {
+					local fab = froot
+					dbgprint("Choose consumer " + fab.get_name() + " at " + fab.x + "," + fab.y + ", which has " + min_mfc + " missing links")
+				}
 			}
-			if (froot) {
-				local fab = froot
-				dbgprint("Choose consumer " + fab.get_name() + " at " + fab.x + "," + fab.y + ", which has " + min_mfc + " missing links")
+
+			// nothing found??
+			if (froot==null) return r_t(RT_DONE_NOTHING);
+
+			dbgprint("Connect  " + froot.get_name() + " at " + froot.x + "," + froot.y)
+
+			// find link to connect
+			if (!plan_missing_link(froot)) {
+				dbgprint(".. no missing link")
+				// no missing link found - reset froot
+				froot = null
+				return r_t(RT_SUCCESS)
+			}
+			return r_t(RT_PARTIAL_SUCCESS)
+		}
+		else {
+			// demand-driven method
+
+			// plan root tree
+			if (froot  &&  plan_increase_consumption(froot) <= 0) {
+				froot = null
+			}
+
+			// determine new root
+			if (froot == null) {
+				local fab
+				if (fab = get_next_end_consumer()) {
+					local n = plan_increase_consumption(fab)
+
+					return r_t( n>0  ? RT_PARTIAL_SUCCESS : RT_SUCCESS)
+				}
 			}
 		}
-
-		// nothing found??
-		if (froot==null) return r_t(RT_DONE_NOTHING);
-
-		dbgprint("Connect  " + froot.get_name() + " at " + froot.x + "," + froot.y)
-
-		// find link to connect
-		if (!find_missing_link(froot)) {
-			dbgprint(".. no missing link")
-			// no missing link found - reset froot
-			froot = null
-			return r_t(RT_SUCCESS);
-		}
-		return r_t(RT_PARTIAL_SUCCESS);
+		return r_t(RT_SUCCESS)
 	}
 
 	/**
@@ -60,6 +112,9 @@ class factorysearcher_t extends manager_t
 	 */
 	static function plan_connection(fsrc, fdest, freight)
 	{
+		if (industry_manager.get_link_state(fsrc, fdest, freight) != industry_link_t.st_free) {
+			return
+		}
 		dbgprint("Close link for " + freight + " from " + fsrc.get_name() + " at " + fsrc.x + "," + fsrc.y + " to "+ fdest.get_name() + " at " + fdest.x + "," + fdest.y)
 
 		industry_manager.set_link_state(fsrc, fdest, freight, industry_link_t.st_planned);
@@ -111,15 +166,13 @@ class factorysearcher_t extends manager_t
 					local state = industry_manager.get_link_state(s, fab, good);
 
 					if (state == industry_link_t.st_failed) {
-						// treat is as incomplete tree (only if not end consumer)
-						if (!end_consumer) return -1; else continue // foreach
+						continue // foreach
 					}
 					if (state != industry_link_t.st_free) {
 						// planned / built -> nothing missing
 						g_complete = true
 						g_count = 0
 						continue
-
 					}
 
 					local n = count_missing_factories(s, indent + "  ");
@@ -167,7 +220,7 @@ class factorysearcher_t extends manager_t
 	 * sets fsrc, fdest, lgood if true was returned
 	 * @returns true if link is found
 	 */
-	function find_missing_link(fab, indent = "")
+	function plan_missing_link(fab, indent = "")
 	{
 		dbgprint(indent + "Missing link for factory " + fab.get_name() + " at " + fab.x + "," + fab.y)
 		// source of raw material?
@@ -207,7 +260,7 @@ class factorysearcher_t extends manager_t
 
 				dbgprint(indent + ".. Factory " + s.get_name() + " at " + s.x + "," + s.y + " supplies " + good)
 
-				if (8*oslot.get_storage()[0] > oslot.max_storage  ||  !find_missing_link(s, indent + "  ")) {
+				if (8*oslot.get_storage()[0] > oslot.max_storage  ||  !plan_missing_link(s, indent + "  ")) {
 					// this is our link
 					dbgprint(indent + ".. plan this connection")
 					plan_connection(s, fab, good)
@@ -216,5 +269,205 @@ class factorysearcher_t extends manager_t
 			}
 		}
 		return false // all links are connected
+	}
+
+	/**
+	 * Estimates additional possible consumption at this end-consumer factory
+	 */
+	function plan_increase_consumption(fab, indent = "")
+	{
+		// initialize search
+		if (fab.output.len() > 0) {
+			return 0
+		}
+
+		local planned = 0;
+		foreach(good, islot in fab.input) {
+			local tree = estimate_consumption(fab, good)
+			// now do some greedy selection: for each producer select enough suppliers
+
+			print(recursive_save(tree, "\t", [tree ] ))
+
+			planned += plan_consumption_connection(tree, fab, good)
+		}
+		return planned
+	}
+
+	function plan_consumption_connection(tree, fdest, freight, indent = "")
+	{
+		local planned = 0;
+		local needed = tree.increase
+		while (needed > 0) {
+			local best = null
+			local best_supply = 0
+			foreach(supplier in tree.suppliers) {
+				local supply = supplier.supply
+				dbgprint(indent + "Needed " + needed + " Provided " + supply )
+				if (supply > needed  ? (best_supply == 0  ||  supply < best_supply)  :  supply > best_supply) {
+					best = supplier
+					best_supply = supply
+				}
+			}
+			// plan this connection
+			plan_connection(best.supplier, fdest, freight)
+			// go down in tree
+			foreach(good, supplier_slot in best.inputs) {
+				planned += plan_consumption_connection(supplier_slot, best.supplier, good, indent + "  ")
+			}
+			// disable this tree
+			needed -= best_supply
+			best.supply = 0
+		}
+		return planned
+	}
+
+	/**
+	 * Estimates additional possible consumption of good at this factory
+	 *
+	 * Returns tree:
+	 * tree.increase	- Potential local consumption
+	 * tree.supply	- Potential supply
+	 * tree.basec	- Base consumption
+	 * tree.suppliers	- Array of supplier nodes
+	 * 		[].supplier	- Factory
+	 * 		[].supply	- Potential production of supplier	} - produced by estimate_production
+	 * 		[].inputs	- Table Good -> Consumer tree		}
+	 *
+	 * @returns estimated consumption increase
+	 */
+	static function estimate_consumption(fab, prod = null, indent = "")
+	{
+
+		dbgprint(indent + "Estimates for consumption of " + prod + " at factory " + fab.get_name() + " at " + fab.x + "," + fab.y)
+
+		// estimate max consumption
+		local islot = fab.input.rawget(prod)
+		local max_c = islot.get_base_consumption()
+		// estimate actual consumpion
+		local est_c = estimate_actual_consumption(islot)
+
+		local increase = max_c - est_c
+		dbgprint(indent + "  potential increase of consumption of " + prod + " is " + increase)
+
+		// iterate suppliers:
+		// calculate potential additional supply (and build it)
+
+		local tree = { suppliers = [], basec = max_c }
+
+		// search for supply
+		local supply = 0
+		foreach(c in fab.get_suppliers()) {
+			local s = factory_x(c.x, c.y)
+
+			if (prod in s.output) {
+
+				local state = industry_manager.get_link_state(s, fab, prod)
+				if (state == industry_link_t.st_planned  ||  state == industry_link_t.st_failed) {
+					// failed / planned -> no improvement possible
+					dbgprint(indent + "  transport link for  " + prod + " is failed/planned" )
+					continue
+				}
+				local s_tree = estimate_production(s, prod, state == industry_link_t.st_built, indent + "  ")
+
+				s_tree.supplier <- s
+
+				local more = s_tree.supply
+				supply += more
+
+				tree.suppliers.append(s_tree)
+
+				dbgprint(indent + "  potential increase of " + prod + " is " + more + " (state =" + state + ")")
+			}
+		}
+		dbgprint(indent + "  total additional supply of " + prod + " is " + supply)
+
+		tree.increase <- min(increase, supply)
+		tree.supply   <- supply
+
+		return tree
+	}
+
+	/**
+	 * Estimates additional possible production of good at this factory
+	 * @returns tree, see estimate_consumption
+	 */
+	static function estimate_production(fab, prod, exists, indent = "")
+	{
+		dbgprint(indent + "Estimates for production of " + prod + " at factory " + fab.get_name() + " at " + fab.x + "," + fab.y)
+
+		local oslot = fab.output.rawget(prod)
+		local fac   = oslot.get_production_factor()
+		local est_p = estimate_actual_production(oslot, exists)
+
+		local increase = oslot.get_base_production() - est_p
+		dbgprint(indent + "  potential increase of production of " + prod + " is " + increase)
+
+		// build tree for later planning
+		local tree = { inputs = {}, supply = 0 }
+
+		if (increase <= 0) {
+			return tree
+		}
+
+		if (fab.input.len() == 0) {
+			// producer of raw materials
+			tree.supply = ( increase*fac)/100;
+			return tree
+		}
+		// iterate all input goods and search for supply
+		foreach(good, islot in fab.input) {
+
+			local c_tree = estimate_consumption(fab, good, indent + "  ")
+			tree.inputs.rawset(good, c_tree)
+
+			local con = c_tree.increase
+			local est = (con * fac)/ islot.get_consumption_factor()
+
+			increase = min(increase, est)
+		}
+		tree.supply = increase
+		return tree
+	}
+
+	static function estimate_actual_consumption(islot)
+	{
+		local con = islot.get_consumed()
+		local isnew = (con.reduce(sum) - con[0]) == 0;
+		if (!isnew) {
+			// established connection: report max
+			return con.reduce(max)
+		}
+		else {
+			if (con[0] == 0) {
+				// non-existing connection
+				return 0
+			}
+			else {
+				// new connection: report base
+				return islot.get_base_consumption()
+			}
+		}
+	}
+
+	static function estimate_actual_production(oslot, exists)
+	{
+		local pro = oslot.get_produced()
+		local isnew = (pro.reduce(sum) - pro[0]) == 0;
+
+		print("estimate_actual_production: pro[0] = " + (pro[0]) + " pro[1:end] = " + (pro.reduce(sum) - pro[0]) + " base = " + oslot.get_base_consumption())
+		if (!isnew) {
+			// established connection: report max
+			return pro.reduce(max)
+		}
+		else {
+			if (pro[0] == 0  &&  !exists) {
+				// non-existing connection
+				return 0
+			}
+			else {
+				// new connection: report base
+				return oslot.get_base_consumption()
+			}
+		}
 	}
 }

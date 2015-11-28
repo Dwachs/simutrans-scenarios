@@ -7,6 +7,7 @@ class industry_connection_planner_t extends node_t
 	fsrc = null       // factory_x
 	fdest = null      // factory_x
 	freight = null    // string
+	prod = -1   	// integer
 
 	// planned stuff
 	planned_way = null      // way_desc_x
@@ -28,7 +29,9 @@ class industry_connection_planner_t extends node_t
 		// TODO check if connection is plannable
 
 		// compute monthly production
-		local prod = calc_production()
+		if (prod < 0) {
+			prod = calc_production()
+		}
 		dbgprint("production = " + prod);
 
 		// plan convoy prototype
@@ -131,7 +134,7 @@ class industry_connection_planner_t extends node_t
 		dbgprint("Plan: way = " + planned_way.get_name() + ", station = " + planned_station.get_name() + ", depot = " + planned_depot.get_name());
 		dbgprint("Report: gain_per_m  = " + r.gain_per_m + ", nr_convoys  = " + r.nr_convoys + ", cost_fix  = " + r.cost_fix + ", cost_monthly  = " + r.cost_monthly)
 		dbgprint("Report: dist = " + cnv_valuator.distance+ " way_cost = " + planned_way.get_cost())
-		dbgprint("Report: staion = " + planned_station.get_cost()+ " depot = " + planned_depot.get_cost())
+		dbgprint("Report: station = " + planned_station.get_cost()+ " depot = " + planned_depot.get_cost())
 
 		// deliver it
 		local r = r_t(RT_READY)
@@ -147,6 +150,8 @@ class industry_connection_planner_t extends node_t
 	{
 		local src_prod = fsrc.output.rawget(freight).get_base_production();
 		local dest_con = fdest.input.rawget(freight).get_base_consumption();
+
+		// TODO implement production factors
 
 		dbgprint("production = " + src_prod + " / " + dest_con);
 		return min(src_prod,dest_con)
