@@ -5,6 +5,7 @@ class vehicle_constructor_t extends node_t
 	p_line   = null // line_x
 	p_convoy = null // prototyper_t
 	p_count  = 0
+	p_withdraw = false
 
 	// generated data
 	c_cnv = null
@@ -65,7 +66,20 @@ class vehicle_constructor_t extends node_t
 					c_cnv.set_line(pl, p_line)
 					phase ++
 				}
-			case 3: // start
+			case 3: // withdraw old vehicles
+				{
+					if (p_withdraw) {
+						local cnv_list = p_line.get_convoy_list()
+						foreach(o_cnv in cnv_list) {
+							if (o_cnv.id != c_cnv.id  &&  !o_cnv.is_withdrawn()) {
+								o_cnv.toggle_withdraw(pl)
+							}
+						}
+						p_withdraw = false
+					}
+					phase ++
+				}
+			case 4: // start
 				{
 					p_depot.start_convoy(pl, c_cnv)
 

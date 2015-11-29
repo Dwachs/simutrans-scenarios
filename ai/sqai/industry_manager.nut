@@ -137,6 +137,16 @@ class industry_manager_t extends manager_t
 			}
 			cnv = list[0]
 		}
+		if (cnv.is_withdrawn()) {
+			// come back later
+			return
+		}
+		// try to upgrade
+		if (cnv.has_obsolete_vehicles()) {
+			upgrade_link(link)
+			return
+		}
+
 		local lf = link.freight
 		// capacity of convoy
 		local capacity = 0
@@ -269,6 +279,72 @@ class industry_manager_t extends manager_t
 		}
 		dbgprint("")
 
+	}
+
+	function upgrade_link(link)
+	{
+		// line
+		local line = link.lines[0]
+		// find convoy
+		local cnv = null
+		{
+			local list = line.get_convoy_list()
+			if (list.get_count() == 0) {
+				// ??
+				return
+			}
+			cnv = list[0]
+		}
+		// estimate transport volume
+		local transported = line.get_transported_goods().reduce(max)
+
+		// plan convoy prototype
+		local prototyper = prototyper_t(cnv.get_waytype(), link.freight.get_name())
+
+		// TODO do something smarter
+		prototyper.max_vehicles = 4
+		prototyper.min_speed  = 1
+		prototyper.max_length = 1
+
+		local cnv_valuator    = valuator_simple_t()
+		cnv_valuator.wt       = cnv.get_waytype()
+		cnv_valuator.freight  = link.freight.get_name()
+		cnv_valuator.volume   = transported
+		cnv_valuator.max_cnvs = 200
+		cnv_valuator.distance = abs(link.f_src.x-link.f_dest.x) + abs(link.f_src.y-link.f_dest.y)
+
+		local bound_valuator = valuator_simple_t.valuate_monthly_transport.bindenv(cnv_valuator)
+		prototyper.valuate = bound_valuator
+
+		if (prototyper.step().has_failed()) {
+			return // TODO process return value
+		}
+
+		local planned_convoy = prototyper.best
+		// check whether different from current convoy
+		local cnv_veh = cnv.get_vehicles()
+		local pro_veh = planned_convoy.veh
+
+		local different = cnv_veh.len() != pro_veh.len()
+		for(local i=0; i<cnv_veh.len()  &&  !different; i++) {
+			different = !cnv_veh[i].is_equal(pro_veh[i])
+		}
+		if (!different) {
+			return // TODO process return value
+		}
+
+		dbgprint("Upgrade line "  + line.get_name())
+		// build the new one, withdraw the old ones
+		// directly append
+		local depot  = cnv.get_home_depot()
+		// TODO put into report
+		local c = vehicle_constructor_t()
+		c.p_depot    = depot_x(depot.x, depot.y, depot.z)
+		c.p_line     = line
+		c.p_convoy   = planned_convoy
+		c.p_count    = min(planned_convoy.nr_convoys, 3)
+		c.p_withdraw = true
+		append_child(c)
 	}
 
 	function _save()
