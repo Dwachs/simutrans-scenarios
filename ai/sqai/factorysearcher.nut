@@ -14,7 +14,7 @@ class factorysearcher_t extends manager_t
 	function get_next_end_consumer()
 	{
 		// iterate the factory_iterator, which is a generator
-		if (factory_iterator == null) {
+		if (factory_iterator == null  ||  typeof(factory_iterator) != "generator") {
 			// this is a generator
 			factory_iterator = factory_iteration()
 		}
@@ -284,10 +284,8 @@ class factorysearcher_t extends manager_t
 		local planned = 0;
 		foreach(good, islot in fab.input) {
 			local tree = estimate_consumption(fab, good)
+
 			// now do some greedy selection: for each producer select enough suppliers
-
-			print(recursive_save(tree, "\t", [tree ] ))
-
 			planned += plan_consumption_connection(tree, fab, good)
 		}
 		return planned
