@@ -1,11 +1,11 @@
 // functions to load/save an instance
 function loadinstance(classname, table)
 {
-	local new_class  = rawget(classname)
+	local new_class    = this[classname]
 	local new_instance = new_class.instance()
 	foreach(key, val in table) {
 		try {
-			new_instance.rawset(key, val)
+			new_instance[key] = val
 		}
 		catch(ev) { }
 	}
@@ -27,7 +27,7 @@ function saveinstance(classname, instance)
 		if (typeof(val) == "function") {
 			continue
 		}
-		t.rawset(key, instance.rawget(key))
+		t[key] <- instance[key]
 	}
 	return "::loadinstance(\"" + classname + "\", " + recursive_save(t, "\t\t\t", []) + ")"
 }
@@ -72,7 +72,7 @@ depot_x._save <- function ()
 // additional save functions for *_desc_x-types
 function loaddesc(classname, name)
 {
-	local new_class  = rawget(classname)
+	local new_class    = this[classname]
 	local new_instance = new_class.instance()
 	try {
 		new_instance.constructor(name)

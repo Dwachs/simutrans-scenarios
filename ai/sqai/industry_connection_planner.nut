@@ -145,8 +145,8 @@ class industry_connection_planner_t extends node_t
 
 	function calc_production()
 	{
-		local src_prod = fsrc.output.rawget(freight).get_base_production();
-		local dest_con = fdest.input.rawget(freight).get_base_consumption();
+		local src_prod = fsrc.output[freight].get_base_production();
+		local dest_con = fdest.input[freight].get_base_consumption();
 
 		// TODO implement production factors
 

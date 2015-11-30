@@ -56,13 +56,13 @@ class industry_manager_t extends manager_t
 		local k = key(src, des, fre)
 
 		try {
-			link_list.rawget(k).state = state
+			link_list[k].state = state
 		}
 		catch(ev) {
 			// not existing - create entry
 			local l = industry_link_t(src, des, fre)
 			l.state = state
-			link_list.rawset(k, l)
+			link_list[k] <- l
 		}
 		if (state == industry_link_t.st_built) {
 			local text = ""
@@ -86,7 +86,7 @@ class industry_manager_t extends manager_t
 		local k = key(src, des, fre)
 		local res
 		try {
-			res = link_list.rawget(k)
+			res = link_list[k]
 		}
 		catch(ev) {
 			res = null

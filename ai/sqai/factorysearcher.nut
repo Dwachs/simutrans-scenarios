@@ -256,7 +256,7 @@ class factorysearcher_t extends manager_t
 					continue // if connection state is 'failed'
 				}
 
-				local oslot = s.output.rawget(good)
+				local oslot = s.output[good]
 
 				dbgprint(indent + ".. Factory " + s.get_name() + " at " + s.x + "," + s.y + " supplies " + good)
 
@@ -341,7 +341,7 @@ class factorysearcher_t extends manager_t
 		dbgprint(indent + "Estimates for consumption of " + prod + " at factory " + fab.get_name() + " at " + fab.x + "," + fab.y)
 
 		// estimate max consumption
-		local islot = fab.input.rawget(prod)
+		local islot = fab.input[prod]
 		local max_c = islot.get_base_consumption()
 		// estimate actual consumpion
 		local est_c = estimate_actual_consumption(islot)
@@ -395,7 +395,7 @@ class factorysearcher_t extends manager_t
 	{
 		dbgprint(indent + "Estimates for production of " + prod + " at factory " + fab.get_name() + " at " + fab.x + "," + fab.y)
 
-		local oslot = fab.output.rawget(prod)
+		local oslot = fab.output[prod]
 		local fac   = oslot.get_production_factor()
 		local est_p = estimate_actual_production(oslot, exists)
 
@@ -418,7 +418,7 @@ class factorysearcher_t extends manager_t
 		foreach(good, islot in fab.input) {
 
 			local c_tree = estimate_consumption(fab, good, indent + "  ")
-			tree.inputs.rawset(good, c_tree)
+			tree.inputs[good] <- c_tree
 
 			local con = c_tree.increase
 			local est = (con * fac)/ islot.get_consumption_factor()

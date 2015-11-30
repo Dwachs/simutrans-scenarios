@@ -154,7 +154,7 @@ class prototyper_t extends node_t
 			local c = cnv[ind]
 
 // 			local ccc = ["weight","power","min_top_speed","max_speed","length","missing_freight", "capacity","maintenance","price","running_cost"]
-// 			foreach(key in ccc) print(" ... " + key + " = " + c.rawget(key) )
+// 			foreach(key in ccc) print(" ... " + key + " = " + c[key] )
 
 			// check constraints
 			// .. length
@@ -202,7 +202,7 @@ class prototyper_t extends node_t
 			}
 
 // 			local ccc = ["weight","power","min_top_speed","max_speed","length","missing_freight", "capacity","maintenance","price","running_cost"]
-// 			foreach(key in ccc) print(" ... " + key + " = " + best.rawget(key) )
+// 			foreach(key in ccc) print(" ... " + key + " = " + best[key] )
 //
 			return r_t(RT_SUCCESS)
 		}
