@@ -35,7 +35,7 @@ class road_connector_t extends manager_t
 			case 0: // find places for stations
 				c_start = find_station_place(fsrc, fdest)
 				if (c_start) {
-					c_end   = find_station_place(fdest, c_start)
+					c_end   = find_station_place(fdest, c_start, true)
 				}
 
 				if (c_start  &&  c_end) {
@@ -75,6 +75,13 @@ class road_connector_t extends manager_t
 						error_handler()
 						return r_t(RT_TOTAL_FAIL)
 					}
+					{
+						// store place of unload station for future use
+						local fs = ::station_manager.access_freight_station(fdest)
+						if (fs.road_unload == null) {
+							fs.road_unload = c_end
+						}
+					}
 					phase ++
 				}
 			case 3: // find depot place
@@ -98,13 +105,24 @@ class road_connector_t extends manager_t
 				}
 			case 5: // build depot
 				{
-					local w = command_x(tool_build_depot);
-					local err = w.work(pl, c_depot, planned_depot.get_name() )
-					if (err) {
-						print("Failed to build depot at " + coord_to_string(c_depot))
-						gui.add_message_at("Failed to build depot", c_depot)
-						error_handler()
-						return r_t(RT_TOTAL_FAIL)
+					// depot already existing ?
+					if (c_depot.find_object(mo_depot_road) == null) {
+						// no: build
+						local w = command_x(tool_build_depot);
+						local err = w.work(pl, c_depot, planned_depot.get_name() )
+						if (err) {
+							print("Failed to build depot at " + coord_to_string(c_depot))
+							gui.add_message_at("Failed to build depot", c_depot)
+							error_handler()
+							return r_t(RT_TOTAL_FAIL)
+						}
+						{
+							// store depot location
+							local fs = ::station_manager.access_freight_station(fsrc)
+							if (fs.depot == null) {
+								fs.depot = c_depot
+							}
+						}
 					}
 					phase ++
 				}
@@ -221,8 +239,15 @@ class road_connector_t extends manager_t
 		return best
 	}
 
-	function find_station_place(factory, target)
+	function find_station_place(factory, target, unload = false)
 	{
+		if (unload) {
+			// try unload station from station manager
+			local res = ::station_manager.access_freight_station(factory).road_unload
+			if (res) {
+				return res
+			}
+		}
 		local area = get_tiles_near_factory(factory)
 
 		return find_empty_place(area, target)
@@ -230,6 +255,14 @@ class road_connector_t extends manager_t
 
 	function find_depot_place(start, target)
 	{
+		{
+			// try depot location from station manager
+			local res = ::station_manager.access_freight_station(fsrc).depot
+			if (res) {
+				return res
+			}
+		}
+
 		local cov = 5
 		local area = []
 

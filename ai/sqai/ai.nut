@@ -23,6 +23,7 @@ include("industry_connection_planner")
 include("industry_manager")
 include("prototyper")
 include("road_connector")
+include("station_manager")
 include("vehicle_constructor")
 
 // global variables
@@ -31,8 +32,9 @@ our_player    <- null // player_x instance
 
 tree <- {}
 
-factorysearcher <- null
+factorysearcher  <- null
 industry_manager <- null
+station_manager  <- null
 
 // stepping info
 s <- {}
@@ -79,6 +81,10 @@ function init_tree()
 	}
 	else {
 		tree = persistent.tree
+	}
+
+	if (!("station_manager" in persistent)) {
+		persistent.station_manager <- freight_station_manager_t()
 	}
 }
 
