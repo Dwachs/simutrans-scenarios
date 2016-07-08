@@ -64,14 +64,12 @@ class road_connector_t extends manager_t
 					local err = w.work(pl, c_start, planned_station.get_name() )
 					if (err) {
 						print("Failed to build station at " + coord_to_string(c_start))
-						gui.add_message_at("Failed to build station", c_start)
 						error_handler()
 						return r_t(RT_TOTAL_FAIL)
 					}
 					local err = w.work(pl, c_end, planned_station.get_name() )
 					if (err) {
 						print("Failed to build station at " + coord_to_string(c_end))
-						gui.add_message_at("Failed to build station", c_end)
 						error_handler()
 						return r_t(RT_TOTAL_FAIL)
 					}
@@ -112,7 +110,6 @@ class road_connector_t extends manager_t
 						local err = w.work(pl, c_depot, planned_depot.get_name() )
 						if (err) {
 							print("Failed to build depot at " + coord_to_string(c_depot))
-							gui.add_message_at("Failed to build depot", c_depot)
 							error_handler()
 							return r_t(RT_TOTAL_FAIL)
 						}
