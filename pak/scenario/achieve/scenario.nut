@@ -469,8 +469,7 @@ function compile_current_standing()
 {
 	local st = []
 	for(local pl = 0; pl < 15; pl ++) {
-		local player = player_x(pl)
-		if (pl != 1  &&  player.is_active()) {
+		if (pl != 1  &&  active_players[pl]) {
 			st.append( clone active_players[pl] )
 		}
 	}
