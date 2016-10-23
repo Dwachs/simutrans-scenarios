@@ -732,11 +732,18 @@ function resume_game()
 	{
 		local po = player_x(pl)
 		if (pl != 1  &&  po.is_active()) {
-			// update
-			switch(persistent.save_version) {
-				case 0:
-					pending_goals[pl].insert(2, deliver_goods_month())
-					print("Ha" + pl)
+			// fill goal array if necessary
+			if (!pending_goals[pl]) {
+				pending_goals[pl]     = generate_pending_goals()
+				company_goal_info[pl] = get_company_goal_info_default()
+			}
+			else {
+				// update
+				switch(persistent.save_version) {
+					case 0:
+						pending_goals[pl].insert(2, deliver_goods_month())
+						print("Ha" + pl)
+				}
 			}
 			// player info
 			active_players[pl]    = clone active_players_default
