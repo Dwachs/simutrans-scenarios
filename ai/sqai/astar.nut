@@ -137,10 +137,13 @@ class astar
 		t = c.y - boundingbox.ymax; if (t>0) d += t;
 
 		if (d==0) {
+			local t = targets[0]
+			d = abs(t.x-c.x) + abs(t.y-c.y)
+
 			// inside bounding box
 			for(local i=1; i < targets.len(); i++) {
 				local t = targets[i]
-				d = max(d, abs(t.x-c.x) + abs(t.y-c.y) )
+				d = min(d, abs(t.x-c.x) + abs(t.y-c.y) )
 			}
 		}
 		return d
