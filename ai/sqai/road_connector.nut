@@ -48,8 +48,9 @@ class road_connector_t extends manager_t
 				{
 					sleep()
 					local d = pl.get_current_cash();
-					local w = command_x(tool_build_way);
-					local err = w.work(pl, c_start, c_end, planned_way.get_name() )
+					test_route_search(pl, c_start, c_end, planned_way )
+					//local w = command_x(tool_build_way);
+					local err = null //= w.work(pl, c_start, c_end, planned_way.get_name() )
 					print("Way construction cost: " + (d-pl.get_current_cash()) )
 					if (err) {
 						print("Failed to build way from " + coord_to_string(c_start)+ " to " + coord_to_string(c_end))
@@ -322,4 +323,14 @@ class road_connector_t extends manager_t
 		}
 		return find_empty_place(area, target)
 	}
+
+	function test_route_search(pl, start, end, way)
+	{
+		local as = astar_builder()
+		as.builder = way_planner_x(pl)
+		as.way = way
+		as.builder.set_build_types(wt_road, way) //, null, null)
+		as.search_route(start, end)
+	}
+
 }
