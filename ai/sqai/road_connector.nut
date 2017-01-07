@@ -38,10 +38,12 @@ class road_connector_t extends manager_t
 					c_end   = find_station_place(fdest, c_start, true)
 				}
 
-				if (c_start  &&  c_end) {
+				if (c_start.len()>0  &&  c_end.len()>0) {
 					phase ++
 				}
 				else {
+					print("No station places found")
+					error_handler()
 					return r_t(RT_TOTAL_FAIL)
 				}
 			case 1: // build way
@@ -257,7 +259,7 @@ class road_connector_t extends manager_t
 				}
 			}
 		}
-		return list.len() > 0 ?  list : null
+		return list.len() > 0 ?  list : []
 	}
 
 	function find_station_place(factory, target, unload = false)
