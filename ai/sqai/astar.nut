@@ -158,10 +158,34 @@ class astar
 class ab_node extends ::astar_node
 {
 	dir = 0 // direction to reach this node
-	constructor(c, p, co, w, d, di)
+	flag = 0
+	constructor(c, p, co, w, d, di, fl=0)
 	{
 		base.constructor(c, p, co, w, d)
-		dir = di
+		dir  = di
+		flag = fl
+	}
+}
+
+
+class pontifex
+{
+	player = null
+	bridge = null
+
+	constructor(pl, way)
+	{
+		player = pl
+		local list = bridge_desc_x.get_available_bridges(way.get_waytype())
+		if (list.len()>0) {
+			bridge = list[0]
+		}
+	}
+
+	function find_end(pos, dir, min_length)
+	{
+		//koord3d brueckenbauer_finde_ende(player_t *player, koord3d pos, ribi_t::ribi ribi, const bruecke_besch_t *besch, uint32 min_length)
+		return bridge_planner_x.find_end(player, pos, dir, bridge, min_length)
 	}
 }
 
@@ -169,6 +193,7 @@ class ab_node extends ::astar_node
 class astar_builder extends astar
 {
 	builder = null
+	bridger = null
 	way     = null
 
 
@@ -176,22 +201,59 @@ class astar_builder extends astar
 	function process_node(cnode)
 	{
 		local from = tile_x(cnode.x, cnode.y, cnode.z)
+		local back = dir.backward(cnode.dir)
+
 		for(local d = 1; d<16; d*=2) {
+			// do not go backwards
+			if (d == back) {
+				continue
+			}
+			// continue straight after a bridge
+			if (cnode.flag == 1  &&  d != cnode.dir) {
+				continue
+			}
+
 			local to = from.get_neighbour(wt_all, d)
-			if (to  &&  builder.is_allowed_step(from, to)  &&  !is_closed(to)) {
-				// estimate moving cost
-				local move = ((dir.double(d) & cnode.dir) != 0) ? /* straight */ 14 : /* curve */ 10
-				local dist   = 10*estimate_distance(to)
-				// is there already a road?
-				if (!to.has_way(wt_road)) {
-					move += 8
+			if (to) {
+				if (builder.is_allowed_step(from, to)  &&  !is_closed(to)) {
+					// estimate moving cost
+					local move = ((dir.double(d) & cnode.dir) != 0) ? /* straight */ 14 : /* curve */ 10
+					local dist   = 10*estimate_distance(to)
+					// is there already a road?
+					if (!to.has_way(wt_road)) {
+						move += 8
+					}
+
+					local cost   = cnode.cost + move
+					local weight = cost + dist
+					local node = ab_node(to, cnode, cost, weight, dist, d)
+
+					add_to_open(node, weight)
 				}
+				// try bridges
+				else if (bridger  &&  d == cnode.dir) {
+					local len = 1
+					local max_len = bridger.bridge.get_max_length()
 
-				local cost   = cnode.cost + move
-				local weight = cost + dist
-				local node = ab_node(to, cnode, cost, weight, dist, d)
+					do {
+						local to = bridger.find_end(to, d, len)
+						if (to.x < 0  ||  is_closed(to)) {
+							break
+						}
+						local bridge_len = abs(from.x-to.x) + abs(from.y-to.y)
 
-				add_to_open(node, weight)
+						local move = bridge_len * 14 /* straight */  * 3  /*extra bridge penalty */;
+						local dist = 10*estimate_distance(to)
+
+						local cost   = cnode.cost + move
+						local weight = cost + dist
+						local node = ab_node(to, cnode, cost, weight, dist, d, 1 /*bridge*/)
+
+						add_to_open(node, weight)
+
+						len = bridge_len + 1
+					} while (len <= max_len)
+				}
 			}
 		}
 	}
@@ -199,25 +261,43 @@ class astar_builder extends astar
 	function search_route(start, end)
 	{
 		prepare_search()
-		targets.append(end)
+		foreach (e in end) {
+			targets.append(e);
+		}
 		compute_bounding_box()
 
-		local dist   = estimate_distance(start)
-		add_to_open(ab_node(start, null, 1, dist+1, dist, 0), dist+1)
+		foreach (s in start)
+		{
+			local dist = estimate_distance(s)
+			add_to_open(ab_node(s, null, 1, dist+1, dist, 0), dist+1)
+		}
 
 		search()
 
 		if (route.len() > 0) {
 			local w = command_x(tool_build_way);
 			w.set_flags(2)
+			local b = command_x(tool_build_bridge);
+			b.set_flags(2)
 
 			for (local i = 1; i<route.len(); i++) {
-				local err = w.work(our_player, route[i-1], route[i], way.get_name() )
+				local err
+
+				if (route[i-1].flag == 0) {
+					err = w.work(our_player, route[i-1], route[i], way.get_name() )
+				}
+				else if (route[i-1].flag == 1) {
+					err = b.work(our_player, route[i], route[i-1], bridger.bridge.get_name() )
+				}
 				if (err) {
-					label_x.create(node, our_player, "<" + err + ">")
+					label_x.create(route[i], our_player, "<" + err + "> " + coord3d_to_string(route[i-1]) + " / " +  route[i-1].flag + " / " + route[i].flag )
+					return { err =  err }
 				}
 			}
+			return { start = route[ route.len()-1], end = route[0] }
 		}
+		print("No route found")
+		return { err =  "No route" }
 	}
 }
 
