@@ -91,7 +91,10 @@ class astar
 			// target reached
 			if (dist == 0) break;
 			// already visited previously
-			if (!test_and_close(current_node)) continue;
+			if (!test_and_close(current_node)) {
+				current_node = null
+				continue;
+			}
 			// investigate neighbours and put them into open list
 			process_node(current_node)
 
