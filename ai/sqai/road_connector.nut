@@ -354,7 +354,7 @@ class road_connector_t extends manager_t
 		local as = astar_builder()
 		as.builder = way_planner_x(pl)
 		as.way = way
-		as.builder.set_build_types(wt_road, way) //, null, null)
+		as.builder.set_build_types(way)
 		as.bridger = pontifex(pl, way)
 		if (as.bridger.bridge == null) {
 			as.bridger = null
@@ -373,7 +373,7 @@ class road_connector_t extends manager_t
 		local as = depot_pathfinder()
 		as.builder = way_planner_x(pl)
 		as.way = way
-		as.builder.set_build_types(wt_road, way) //, null, null)
+		as.builder.set_build_types(way)
 		local res = as.search_route(start)
 
 		if ("err" in res) {
