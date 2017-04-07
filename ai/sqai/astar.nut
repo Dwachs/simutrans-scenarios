@@ -180,14 +180,28 @@ class pontifex
 	{
 		player = pl
 		local list = bridge_desc_x.get_available_bridges(way.get_waytype())
-		if (list.len()>0) {
+		local len = list.len()
+		local way_speed = way.get_topspeed()
+		if (len>0) {
 			bridge = list[0]
+			for(local i=1; i<len; i++) {
+				local b = list[i]
+				if (bridge.get_topspeed() < way_speed) {
+					if (b.get_topspeed() > bridge.get_topspeed()) {
+						bridge = b
+					}
+				}
+				else {
+					if (way_speed < b.get_topspeed()  && b.get_topspeed()  < bridge.get_topspeed()) {
+						bridge = b
+					}
+				}
+			}
 		}
 	}
 
 	function find_end(pos, dir, min_length)
 	{
-		//koord3d brueckenbauer_finde_ende(player_t *player, koord3d pos, ribi_t::ribi ribi, const bruecke_besch_t *besch, uint32 min_length)
 		return bridge_planner_x.find_end(player, pos, dir, bridge, min_length)
 	}
 }
