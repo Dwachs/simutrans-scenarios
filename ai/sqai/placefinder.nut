@@ -61,7 +61,8 @@ class finder {
 		return best
 	}
 
-	static function find_empty_places(area)
+
+	static function _find_places(area, test /* function */)
 	{
 		local list = []
 		// check for flat and empty ground
@@ -76,12 +77,22 @@ class finder {
 			if (world.is_coord_valid({x=x,y=y})) {
 				local tile = square_x(x, y).get_ground_tile()
 
-				if (tile.is_empty()  &&  tile.get_slope()==0) {
+				if (test(tile)) {
 					list.append(tile)
 				}
 			}
 		}
 		return list.len() > 0 ?  list : []
+	}
+
+	static function find_empty_places(area)
+	{
+		return _find_places(area, _tile_empty)
+	}
+
+	static function _tile_empty(tile)
+	{
+		return tile.is_empty()  &&  tile.get_slope()==0
 	}
 
 	static function find_station_place(factory, target, unload = false)
