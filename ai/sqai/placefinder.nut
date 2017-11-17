@@ -95,6 +95,16 @@ class finder {
 		return tile.is_empty()  &&  tile.get_slope()==0
 	}
 
+	static function find_water_places(area)
+	{
+		return _find_places(area, _tile_water)
+	}
+
+	static function _tile_water(tile)
+	{
+		return tile.is_water()  &&  (tile.find_object(mo_building)==null)  &&  (tile.find_object(mo_depot_water)==null)
+	}
+
 	static function find_station_place(factory, target, unload = false)
 	{
 		if (unload) {

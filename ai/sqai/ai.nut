@@ -25,6 +25,7 @@ include("industry_manager")
 include("placefinder")
 include("prototyper")
 include("road_connector")
+include("ship_connector")
 include("station_manager")
 include("vehicle_constructor")
 
