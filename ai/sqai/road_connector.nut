@@ -118,8 +118,8 @@ class road_connector_t extends manager_t
 						{
 							// store depot location
 							local fs = ::station_manager.access_freight_station(fsrc)
-							if (fs.depot == null) {
-								fs.depot = c_depot
+							if (fs.road_depot == null) {
+								fs.road_depot = c_depot
 							}
 						}
 					}
