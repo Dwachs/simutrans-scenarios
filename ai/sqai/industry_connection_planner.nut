@@ -36,11 +36,16 @@ class industry_connection_planner_t extends manager_t
 		}
 		dbgprint("production = " + prod);
 
+		// road
 		local rprt = plan_simple_connection(wt_road, null, null)
 		if (rprt) {
 			append_report(rprt)
 		}
-		plan_simple_connection(wt_water, null, null)
+		// water
+		rprt = plan_simple_connection(wt_water, null, null)
+		if (rprt) {
+			append_report(rprt)
+		}
 
 		if (reports.len() == 0) {
 			dbgprint("Set link for " + freight + " from " + fsrc.get_name() + " at " + fsrc.x + "," + fsrc.y + " to "+ fdest.get_name() + " at " + fdest.x + "," + fdest.y + " to MISSING")
@@ -53,6 +58,13 @@ class industry_connection_planner_t extends manager_t
 		local r = r_t(RT_READY)
 		r.report = get_report()
 
+		// append a chain of alternative connector nodes
+		local rchain = r.report
+		while (reports.len()>0) {
+			local r = get_report()
+			rchain.action.reports.append( r )
+			rchain = r
+		}
 
 		local toc = get_ops_total();
 		print("industry_connection_planner wasted " + (toc-tic) + " ops")
@@ -162,7 +174,7 @@ class industry_connection_planner_t extends manager_t
 		// create action node
 		local cn = null
 		switch(wt) {
-			case wt_road: cn = road_connector_t(); break
+			case wt_road:  cn = road_connector_t(); break
 			case wt_water: cn = ship_connector_t(); break
 		}
 		cn.fsrc = fsrc

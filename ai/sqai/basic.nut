@@ -129,7 +129,7 @@ class manager_t extends node_seq_t
 {
 	reports = null
 
-	constructor(n)
+	constructor(n = "manager_t")
 	{
 		base.constructor(n)
 		reports = []

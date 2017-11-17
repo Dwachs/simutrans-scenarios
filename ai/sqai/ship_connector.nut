@@ -52,8 +52,7 @@ class ship_connector_t extends manager_t
 				}
 				else {
 					print("No station places found")
-					error_handler()
-					return r_t(RT_TOTAL_FAIL)
+					return error_handler()
 				}
 
 			case 2: // find path between both factories
@@ -61,8 +60,7 @@ class ship_connector_t extends manager_t
 					local err = find_route()
 					if (err) {
 						print("No way from " + coord_to_string(c_start[0])+ " to " + coord_to_string(c_end[0]))
-						error_handler()
-						return r_t(RT_TOTAL_FAIL)
+						return error_handler()
 					}
 					phase ++
 				}
@@ -84,8 +82,7 @@ class ship_connector_t extends manager_t
 					}
 					if (err) {
 						print("Failed to build station at " + key + " / " + err)
-						error_handler()
-						return r_t(RT_TOTAL_FAIL)
+						return error_handler()
 					}
 
 					c_harbour_tiles = null
@@ -97,8 +94,7 @@ class ship_connector_t extends manager_t
 						local err = find_route()
 						if (err) {
 							print("No way2 from " + coord_to_string(c_start)+ " to " + coord_to_string(c_end))
-							error_handler()
-							return r_t(RT_TOTAL_FAIL)
+							return error_handler()
 						}
 					}
 
@@ -112,8 +108,7 @@ class ship_connector_t extends manager_t
 						local err = command_x.build_depot(pl, c_depot, planned_depot )
 						if (err) {
 							print("Failed to build depot at " + coord_to_string(c_depot))
-							error_handler()
-							return r_t(RT_TOTAL_FAIL)
+							return error_handler()
 						}
 						{
 							// store depot location
@@ -178,8 +173,17 @@ class ship_connector_t extends manager_t
 
 	function error_handler()
 	{
-		industry_manager.set_link_state(fsrc, fdest, freight, industry_link_t.st_failed);
-		// TODO add fallback to plan road/amphibic connection
+		local r = r_t(RT_TOTAL_FAIL)
+		// TODO rollback
+		if (reports.len()>0) {
+			// there are alternatives
+			print("Delivering alternative connector")
+			r.report = get_report()
+		}
+		else {
+			industry_manager.set_link_state(fsrc, fdest, freight, industry_link_t.st_failed);
+		}
+		return r
 	}
 
 	static function find_anchorage(factory)

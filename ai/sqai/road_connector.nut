@@ -43,8 +43,7 @@ class road_connector_t extends manager_t
 				}
 				else {
 					print("No station places found")
-					error_handler()
-					return r_t(RT_TOTAL_FAIL)
+					return error_handler()
 				}
 			case 1: // build way
 				{
@@ -54,8 +53,7 @@ class road_connector_t extends manager_t
 					print("Way construction cost: " + (d-pl.get_current_cash()) )
 					if (err) {
 						print("Failed to build way from " + coord_to_string(c_start[0])+ " to " + coord_to_string(c_end[0]))
-						error_handler()
-						return r_t(RT_TOTAL_FAIL)
+						return error_handler()
 					}
 					phase ++
 				}
@@ -64,14 +62,12 @@ class road_connector_t extends manager_t
 					local err = command_x.build_station(pl, c_start, planned_station )
 					if (err) {
 						print("Failed to build station at " + coord_to_string(c_start))
-						error_handler()
-						return r_t(RT_TOTAL_FAIL)
+						return error_handler()
 					}
 					local err = command_x.build_station(pl, c_end, planned_station )
 					if (err) {
 						print("Failed to build station at " + coord_to_string(c_end))
-						error_handler()
-						return r_t(RT_TOTAL_FAIL)
+						return error_handler()
 					}
 					{
 						// store place of unload station for future use
@@ -89,8 +85,7 @@ class road_connector_t extends manager_t
 					local err = construct_road_to_depot(pl, c_start, planned_way)
 					if (err) {
 						print("Failed to build depot access from " + coord_to_string(c_start))
-						error_handler()
-						return r_t(RT_TOTAL_FAIL)
+						return error_handler()
 					}
 					phase += 2
 				}
@@ -99,8 +94,7 @@ class road_connector_t extends manager_t
 					local err = command_x.build_way(pl, c_start, c_depot, planned_way, false)
 					if (err) {
 						print("Failed to build depot access from " + coord_to_string(c_start)+ " to " + coord_to_string(c_depot))
-						error_handler()
-						return r_t(RT_TOTAL_FAIL)
+						return error_handler()
 					}
 					phase ++
 				}
@@ -112,8 +106,7 @@ class road_connector_t extends manager_t
 						local err = command_x.build_depot(pl, c_depot, planned_depot )
 						if (err) {
 							print("Failed to build depot at " + coord_to_string(c_depot))
-							error_handler()
-							return r_t(RT_TOTAL_FAIL)
+							return error_handler()
 						}
 						{
 							// store depot location
@@ -178,7 +171,17 @@ class road_connector_t extends manager_t
 
 	function error_handler()
 	{
-		industry_manager.set_link_state(fsrc, fdest, freight, industry_link_t.st_failed);
+		local r = r_t(RT_TOTAL_FAIL)
+		// TODO rollback
+		if (reports.len()>0) {
+			// there are alternatives
+			print("Delivering alternative connector")
+			r.report = get_report()
+		}
+		else {
+			industry_manager.set_link_state(fsrc, fdest, freight, industry_link_t.st_failed);
+		}
+		return r
 	}
 
 	function construct_road(pl, starts, ends, way)

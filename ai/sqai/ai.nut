@@ -77,13 +77,22 @@ function init_tree()
 		industry_manager = industry_manager_t()
 	}
 	if (!("tree" in persistent)) {
-		tree = node_seq_t()
+		tree = manager_t()
 		tree.append_child(factorysearcher)
 		tree.append_child(industry_manager)
 		persistent.tree <- tree
 	}
 	else {
-		tree = persistent.tree
+		if (persistent.tree.getclass() != manager_t) {
+			// upgrade
+			tree = manager_t()
+			foreach(i in ["nodes", "next_to_step"]) {
+				tree[i] = persistent.tree[i]
+			}
+		}
+		else {
+			tree = persistent.tree
+		}
 	}
 
 	if (!("station_manager" in persistent)) {
@@ -112,13 +121,18 @@ info_text <- ""
 
 function step()
 {
-	local t = tree
 	tree.step()
 	s._step++
 
+	// connector node may fail, but may offer alternative connector node
+	local report = tree.get_report()
+	if (report) {
+		factorysearcher.append_report(report)
+	}
 
 	if (s._step > s._next_construction_step) {
 		local r = factorysearcher.get_report()
+
 		if (r   &&  r.action) {
 			print("New report: expected construction cost: " + (r.cost_fix / 100.0))
 			tree.append_child(r.action)
