@@ -195,7 +195,7 @@ class industry_connection_planner_t extends manager_t
 		return min(src_prod,dest_con)
 	}
 
-	function select_station(list, length, capacity)
+	static function select_station(list, length, capacity)
 	{
 		local station_length = (length + CARUNITS_PER_TILE - 1) / CARUNITS_PER_TILE
 		local capacity       =  capacity
@@ -205,7 +205,6 @@ class industry_connection_planner_t extends manager_t
 		local best_station = null
 
 		foreach(station in list) {
-			print(station.get_name())
 			local ok = (best_station == null)
 			local s_capacity = station_length * station.get_capacity()
 
