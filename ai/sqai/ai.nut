@@ -139,6 +139,11 @@ function compare_coord(c1, c2)
 	return res
 }
 
+function coord3d_to_key(c)
+{
+	return c.x + ":" + c.y + ":" + c.z;
+}
+
 function is_cash_available(cost /* in 1/100 cr */)
 {
 	return 2*cost + 2*our_player.get_current_maintenance() < our_player.get_current_net_wealth()

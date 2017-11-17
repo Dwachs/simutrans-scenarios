@@ -151,11 +151,6 @@ class astar
 		}
 		return d
 	}
-
-	function coord3d_to_key(c)
-	{
-		return c.x + ":" + c.y + ":" + c.z;
-	}
 }
 
 class ab_node extends ::astar_node
