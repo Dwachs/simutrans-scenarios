@@ -4,16 +4,18 @@ class ship_connector_t extends manager_t
 	fsrc = null
 	fdest = null
 	freight = null
-	planned_way = null
-	planned_station = null
-	planned_depot = null
+	planned_station = null // harbour on slope
+	planned_harbour_flat = null
 	planned_convoy = null
+	planned_way = null // unused
+	planned_depot = null
 
 	// step-by-step construct the connection
 	phase = 0
 	// generated data
 	c_start = null
 	c_end   = null
+	c_harbour_tiles = null
 	c_depot = null
 	c_sched = null
 	c_line  = null
@@ -22,6 +24,7 @@ class ship_connector_t extends manager_t
 	constructor()
 	{
 		base.constructor("ship_connector_t")
+		c_harbour_tiles = {}
 		debug = true
 	}
 
@@ -32,9 +35,15 @@ class ship_connector_t extends manager_t
 		local tic = get_ops_total();
 
 		switch(phase) {
-			case 0: // find empty water tiles
-				// oilrigs ?
-				// decide whether harbour is needed ...
+
+			case 0: {
+				// find flat harbour building
+				local station_list = building_desc_x.get_available_stations(building_desc_x.flat_harbour, wt_water, good_desc_x(freight))
+				planned_harbour_flat = industry_connection_planner_t.select_station(station_list, 1, planned_convoy.capacity)
+				phase ++
+			}
+			case 1:
+				// find empty water tiles
 				c_start = find_anchorage(fsrc)
 				c_end   = find_anchorage(fdest)
 
@@ -47,47 +56,52 @@ class ship_connector_t extends manager_t
 					return r_t(RT_TOTAL_FAIL)
 				}
 
-			case 1: // find path between both factories
+			case 2: // find path between both factories
 				{
 					local err = find_route()
 					if (err) {
-						print("No way from " + coord_to_string(c_start)+ " to " + coord_to_string(c_end))
+						print("No way from " + coord_to_string(c_start[0])+ " to " + coord_to_string(c_end[0]))
 						error_handler()
 						return r_t(RT_TOTAL_FAIL)
 					}
 					phase ++
 				}
-			case 2: // build station
-				{ /*
-					local err = command_x.build_station(pl, c_start, planned_station )
-					if (err) {
-						print("Failed to build station at " + coord_to_string(c_start))
-						error_handler()
-						return r_t(RT_TOTAL_FAIL)
-					}
-					local err = command_x.build_station(pl, c_end, planned_station )
-					if (err) {
-						print("Failed to build station at " + coord_to_string(c_end))
-						error_handler()
-						return r_t(RT_TOTAL_FAIL)
-					}
+			case 3: // build harbour
+				{
+					local key
+					local err = null
 					{
-						// store place of unload station for future use
-						local fs = ::station_manager.access_freight_station(fdest)
-						if (fs.ship_unload == null) {
-							fs.ship_unload = c_end
-
-							print( recursive_save({unload = c_end}, "\t\t\t", []) )
+						key = coord3d_to_key(c_start[0])
+						if (key in c_harbour_tiles) {
+							err = build_harbour(c_harbour_tiles[key], c_start)
 						}
-					} */
+					}
+					if (err == null) {
+						key = coord3d_to_key(c_end[0])
+						if (key in c_harbour_tiles) {
+							err = build_harbour(c_harbour_tiles[key], c_end)
+						}
+					}
+					if (err) {
+						print("Failed to build station at " + key + " / " + err)
+						error_handler()
+						return r_t(RT_TOTAL_FAIL)
+					}
+
+					c_harbour_tiles = null
 					phase ++
 				}
-			case 3: // find depot place
+			case 4: // find route again after harbour was built
 				{
-					phase ++
-				}
-			case 4: // build way to depot
-				{
+					if (c_start.len()>1  &&  c_end.len()>1) {
+						local err = find_route()
+						if (err) {
+							print("No way2 from " + coord_to_string(c_start)+ " to " + coord_to_string(c_end))
+							error_handler()
+							return r_t(RT_TOTAL_FAIL)
+						}
+					}
+
 					phase ++
 				}
 			case 5: // build depot
@@ -114,8 +128,8 @@ class ship_connector_t extends manager_t
 			case 6: // create schedule
 				{
 					local sched = schedule_x(wt_water, [])
-					sched.entries.append( schedule_entry_x(c_start, 100, 0) );
-					sched.entries.append( schedule_entry_x(c_end, 0, 0) );
+					sched.entries.append( schedule_entry_x(c_start[0], 100, 0) );
+					sched.entries.append( schedule_entry_x(c_end[0], 0, 0) );
 					c_sched = sched
 					phase ++
 				}
@@ -165,7 +179,7 @@ class ship_connector_t extends manager_t
 	function error_handler()
 	{
 		industry_manager.set_link_state(fsrc, fdest, freight, industry_link_t.st_failed);
-		// add fallback to plan road/amphibic connection
+		// TODO add fallback to plan road/amphibic connection
 	}
 
 	static function find_anchorage(factory)
@@ -195,15 +209,106 @@ class ship_connector_t extends manager_t
 		if (tile_list.len()>0) {
 			foreach(tile in tile_list) {
 				for(local d = 1; d<16; d*=2) {
-					local to = from.get_neighbour(wt_all, tile)
-					if (to  &&  to->is_empty()) {
-						anch.append(tile)
-						break
+					local to = tile.get_neighbour(wt_all, d)
+
+					if (to  &&  to.is_empty()) {
+						local ok = true
+						if (to.get_slope() !=0) {
+							// check place for harbour
+							local size = planned_station.get_size(0)
+							ok = check_harbour_place(tile, size.x*size.y, dir.backward(d))
+						}
+						else if (planned_harbour_flat) {
+							// check place for flat one
+							local size = planned_harbour_flat.get_size(0)
+							ok = check_harbour_place(tile, size.x*size.y, dir.backward(d))
+						}
+						if (ok) {
+							anch.append(tile)
+							c_harbour_tiles[coord3d_to_key(tile)] <- to
+							break
+						}
 					}
 				}
 			}
 		}
 		return anch
+	}
+
+	function check_harbour_place(pos, len, d /* direction */)
+	{
+		local from = pos
+		for(local i = 0; i<len; i++) {
+			local to = from.get_neighbour(wt_water, d)
+			if (to  &&  finder._tile_water(to) ) {
+				from = to
+			}
+			else {
+				return false
+			}
+		}
+		return true
+	}
+
+	/**
+	 * Build harbour at @p tile,
+	 * replace water with an array containing all water tiles next to the harbour
+	 */
+	function build_harbour(tile, water_arr)
+	{
+		local water = water_arr[0]
+		local err = null
+		local len = 0
+		local dif = { x=tile.x-water.x, y=tile.y-water.y}
+		print("Place harbour at " + coord_to_string(tile) + " to access " + coord_to_string(water) )
+
+		if (tile.get_slope()) {
+
+			local slope = dir.to_slope(coord_to_dir(dif))
+			// terraform ??
+			if (tile.get_slope() != slope  &&  tile.get_slope() != 2*slope) {
+				err = command_x.set_slope(our_player, tile, slope )
+				if (err) {
+					return err;
+				}
+			}
+			err = command_x.build_station(our_player, tile, planned_station)
+
+			local size = planned_station.get_size(0)
+			len = size.x*size.y
+		}
+		else {
+			err = command_x.build_station(our_player, tile, planned_harbour_flat)
+
+			local size = planned_harbour_flat.get_size(0)
+			len = size.x*size.y
+		}
+		if (err) {
+			return err;
+		}
+
+		water_arr.clear()
+		// all water tiles near harbour
+		for(local l=0; l<=len; l++) {
+			for(local off=-1; off<=1; off += (l==len?1:2)) {
+				local pos = { x = water.x - l*dif.x + off*dif.y,
+					        y = water.y - l*dif.y - off*dif.x }
+				//
+				local to = tile_x(pos.x, pos.y, water.z)
+				try {
+					if (finder._tile_water(to)) {
+						water_arr.append(to)
+					}
+				}
+				catch(ev) {/* ignore */}
+			}
+		}
+		if (water_arr.len()==0) {
+			// should not happen
+			print("No non-harbour water tiles found near " + coord_to_string(water))
+			water_arr.append(water)
+		}
+		return null
 	}
 
 	function find_route()
@@ -215,8 +320,8 @@ class ship_connector_t extends manager_t
 		if ("err" in res) {
 			return res.err
 		}
-		c_start = res.start
-		c_end   = res.end
+		c_start = [res.start ]
+		c_end   = [res.end   ]
 
 		local asd = route_finder_water_depot()
 		res = asd.search_route(as.route)
