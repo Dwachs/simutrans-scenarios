@@ -345,14 +345,18 @@ class route_finder_water extends astar
 	{
 		local from = tile_x(cnode.x, cnode.y, cnode.z)
 		local back = dir.backward(cnode.dir)
+		local is_water = from.is_water()
+		local water_dir = from.get_way_dirs(wt_water)
+
+		local test_dir = cnode.previous ? (back ^ 0x0f) & cnode.flag : 0x0f
 
 		for(local d = 1; d<16; d*=2) {
 			// do not go backwards
-			if (d == back) {
+			if (( d &test_dir) ==0 ) {
 				continue
 			}
 
-			local to = from.get_neighbour(wt_all, d)
+			local to = from.get_neighbour(wt_water, d)
 			if (to) {
 				if (::finder._tile_water(to)  &&  !is_closed(to)) {
 					// estimate moving cost
@@ -361,8 +365,10 @@ class route_finder_water extends astar
 
 					local cost   = cnode.cost + move
 					local weight = cost + dist
-					local node = ab_node(to, cnode, cost, weight, dist, d)
+					// use jump-point search (see dataobj/route.cc)
+					local jps = cnode.previous ? (water_dir ^ 0x0f) | d | cnode.previous.dir : 0x0f
 
+					local node = ab_node(to, cnode, cost, weight, dist, d, jps)
 					add_to_open(node, weight)
 				}
 			}
