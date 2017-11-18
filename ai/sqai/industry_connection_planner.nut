@@ -62,6 +62,10 @@ class industry_connection_planner_t extends manager_t
 		local rchain = r.report
 		while (reports.len()>0) {
 			local r = get_report()
+			if (r == null) {
+				// may happen if no nice reports are available
+				break;
+			}
 			rchain.action.reports.append( r )
 			rchain = r
 		}
