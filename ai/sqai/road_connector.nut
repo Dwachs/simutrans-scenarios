@@ -89,15 +89,6 @@ class road_connector_t extends manager_t
 					}
 					phase += 2
 				}
-			case 4: // build way to depot
-				{
-					local err = command_x.build_way(pl, c_start, c_depot, planned_way, false)
-					if (err) {
-						print("Failed to build depot access from " + coord_to_string(c_start)+ " to " + coord_to_string(c_depot))
-						return error_handler()
-					}
-					phase ++
-				}
 			case 5: // build depot
 				{
 					// depot already existing ?
