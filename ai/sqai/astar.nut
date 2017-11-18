@@ -248,7 +248,7 @@ class astar_builder extends astar
 					local max_len = bridger.bridge.get_max_length()
 
 					do {
-						local to = bridger.find_end(to, d, len)
+						local to = bridger.find_end(from, d, len)
 						if (to.x < 0  ||  is_closed(to)) {
 							break
 						}
