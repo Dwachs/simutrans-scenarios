@@ -291,16 +291,27 @@ class ship_connector_t extends manager_t
 			return err;
 		}
 
+		// halt at this harbour
+		local harbour_halt = schedule_entry_x(tile,0,0).get_halt(our_player)
+
 		water_arr.clear()
 		// all water tiles near harbour
-		for(local l=0; l<=len; l++) {
-			for(local off=-1; off<=1; off += (l==len?1:2)) {
+		for(local l=0; l<len; l++) {
+			for(local off=-1; off<=1; off += (l==len-1?1:2)) {
 				local pos = { x = water.x - l*dif.x + off*dif.y,
 					        y = water.y - l*dif.y - off*dif.x }
 				//
 				local to = tile_x(pos.x, pos.y, water.z)
 				try {
 					if (finder._tile_water(to)) {
+
+						local halt = schedule_entry_x(to,0,0).get_halt(our_player)
+
+						if (halt  &&  ( (halt<=>harbour_halt) != 0) ) {
+							// we do not want to use this halt
+							continue
+						}
+
 						water_arr.append(to)
 					}
 				}
@@ -386,6 +397,9 @@ class route_finder_water extends astar
 		foreach (s in start)
 		{
 			local dist = estimate_distance(s)
+			if (dist == 0) {
+				continue
+			}
 			add_to_open(ab_node(s, null, 1, dist+1, dist, 0), dist+1)
 		}
 
@@ -395,10 +409,6 @@ class route_finder_water extends astar
 			print("No water route found")
 			return { err =  "No route" }
 		}
-
-		local res = { start = route[ route.len()-1], end = route[0] }
-
-		// now find route to some depot place
 
 		if (route.len() > 0) {
 			return { start = route[ route.len()-1], end = route[0] }
@@ -437,7 +447,7 @@ class route_finder_water_depot extends route_finder_water
 		if (route.len() > 0) {
 			return { depot = route[0] }
 		}
-		print("No route found")
+		print("No water depot route found")
 		return { err =  "No route" }
 	}
 }
