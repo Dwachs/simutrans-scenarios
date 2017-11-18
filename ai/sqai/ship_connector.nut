@@ -90,10 +90,10 @@ class ship_connector_t extends manager_t
 				}
 			case 4: // find route again after harbour was built
 				{
-					if (c_start.len()>1  &&  c_end.len()>1) {
+					if (c_start.len()>1  ||  c_end.len()>1) {
 						local err = find_route()
 						if (err) {
-							print("No way2 from " + coord_to_string(c_start)+ " to " + coord_to_string(c_end))
+							print("No way2 from " + coord_to_string(c_start[0])+ " to " + coord_to_string(c_end[0]))
 							return error_handler()
 						}
 					}
