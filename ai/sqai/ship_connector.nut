@@ -44,8 +44,8 @@ class ship_connector_t extends manager_t
 			}
 			case 1:
 				// find empty water tiles
-				c_start = find_anchorage(fsrc)
-				c_end   = find_anchorage(fdest)
+				c_start = find_anchorage(fsrc,  planned_station, planned_harbour_flat, c_harbour_tiles)
+				c_end   = find_anchorage(fdest, planned_station, planned_harbour_flat, c_harbour_tiles)
 
 				if (c_start.len()>0  &&  c_end.len()>0) {
 					phase ++
@@ -186,7 +186,7 @@ class ship_connector_t extends manager_t
 		return r
 	}
 
-	static function find_anchorage(factory)
+	static function find_anchorage(factory, planned_station, planned_harbour_flat, c_harbour_tiles)
 	{
 		// try to find tiles already covered by some harbours
 		local tile_list = ::finder.find_water_places( ::finder.get_tiles_near_factory(factory) )
@@ -220,12 +220,12 @@ class ship_connector_t extends manager_t
 						if (to.get_slope() !=0) {
 							// check place for harbour
 							local size = planned_station.get_size(0)
-							ok = check_harbour_place(tile, size.x*size.y, dir.backward(d))
+							ok = finder.check_harbour_place(tile, size.x*size.y, dir.backward(d))
 						}
 						else if (planned_harbour_flat) {
 							// check place for flat one
 							local size = planned_harbour_flat.get_size(0)
-							ok = check_harbour_place(tile, size.x*size.y, dir.backward(d))
+							ok = finder.check_harbour_place(tile, size.x*size.y, dir.backward(d))
 						}
 						if (ok) {
 							anch.append(tile)
@@ -237,21 +237,6 @@ class ship_connector_t extends manager_t
 			}
 		}
 		return anch
-	}
-
-	function check_harbour_place(pos, len, d /* direction */)
-	{
-		local from = pos
-		for(local i = 0; i<len; i++) {
-			local to = from.get_neighbour(wt_water, d)
-			if (to  &&  finder._tile_water(to) ) {
-				from = to
-			}
-			else {
-				return false
-			}
-		}
-		return true
 	}
 
 	/**

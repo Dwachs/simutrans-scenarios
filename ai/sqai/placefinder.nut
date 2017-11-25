@@ -118,4 +118,24 @@ class finder {
 
 		return find_empty_places(area)
 	}
+
+	/**
+	 * Can harbour of length @p len placed at @p pos in direction @p d.
+	 * @param first water tile of harbour
+	 */
+	static function check_harbour_place(pos, len, d /* direction */)
+	{
+		local from = pos
+		for(local i = 0; i<len; i++) {
+			local to = from.get_neighbour(wt_water, d)
+			if (to  &&  _tile_water(to) ) {
+				from = to
+			}
+			else {
+				return false
+			}
+		}
+		return true
+	}
+
 }
