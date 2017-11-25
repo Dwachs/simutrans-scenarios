@@ -356,7 +356,6 @@ class route_finder_water extends astar
 	{
 		local from = tile_x(cnode.x, cnode.y, cnode.z)
 		local back = dir.backward(cnode.dir)
-		local is_water = from.is_water()
 		local water_dir = from.get_way_dirs(wt_water)
 
 		local test_dir = cnode.previous ? (back ^ 0x0f) & cnode.flag : 0x0f
