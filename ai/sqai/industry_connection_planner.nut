@@ -153,7 +153,6 @@ class industry_connection_planner_t extends manager_t
 		}
 		else {
 			local station_list = building_desc_x.get_available_stations(building_desc_x.harbour, wt, good_desc_x(freight))
-						print(station_list)
 			planned_station = select_station(station_list, 1, planned_convoy.capacity)
 		}
 		// plan depot
