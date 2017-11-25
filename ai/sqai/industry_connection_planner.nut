@@ -142,8 +142,6 @@ class industry_connection_planner_t extends manager_t
 
 		// valuate again with best way
 		r.gain_per_m = cnv_valuator.valuate_monthly_transport(planned_convoy)
-		r.nr_convoys = planned_convoy.nr_convoys
-
 
 		// plan station
 		local planned_station = null
@@ -191,7 +189,7 @@ class industry_connection_planner_t extends manager_t
 		r.action = cn
 
 		dbgprint("Plan: way = " + planned_way.get_name() + ", station = " + planned_station.get_name() + ", depot = " + planned_depot.get_name());
-		dbgprint("Report: gain_per_m  = " + r.gain_per_m + ", nr_convoys  = " + r.nr_convoys + ", cost_fix  = " + r.cost_fix + ", cost_monthly  = " + r.cost_monthly)
+		dbgprint("Report: gain_per_m  = " + r.gain_per_m + ", nr_convoys  = " + planned_convoy.nr_convoys + ", cost_fix  = " + r.cost_fix + ", cost_monthly  = " + r.cost_monthly)
 		dbgprint("Report: dist = " + cnv_valuator.distance+ " way_cost = " + planned_way.get_cost())
 		dbgprint("Report: station = " + planned_station.get_cost()+ " depot = " + planned_depot.get_cost())
 

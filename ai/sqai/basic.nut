@@ -106,13 +106,8 @@ class report_t
 	// costs
 	cost_fix = 0
 	cost_monthly = 0
-	// revenue per vehicle and month
-	// (gain of ships included)
-	gain_per_v_m = 0
 	// expected gain per month
 	gain_per_m = 0
-	// convoys
-	nr_convoys = 0
 
 	function merge_report(r)
 	{
