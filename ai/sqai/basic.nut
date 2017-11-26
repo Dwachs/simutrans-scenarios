@@ -18,7 +18,7 @@ class r_t
 	code = 0
 	report = null
 
-	constructor(c) { code = c }
+	constructor(c, r=null) { code = c; report = r }
 
 	function is_ready()       { return (code & RT_READY);}
 	function can_be_deleted() { return (code & RT_KILL_ME); }
@@ -111,7 +111,10 @@ class report_t
 
 	function merge_report(r)
 	{
-		// TODO
+		action.append_child( r.action )
+		cost_fix     += r.cost_fix
+		cost_monthly += r.cost_monthly
+		gain_per_m   += r.gain_per_m
 	}
 
 	function _save()
