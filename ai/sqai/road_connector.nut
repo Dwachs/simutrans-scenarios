@@ -174,6 +174,12 @@ class road_connector_t extends manager_t
 			// there are alternatives
 			print("Delivering alternative connector")
 			r.report = get_report()
+
+			if (r.report.action  &&  r.report.action.getclass() == amphibious_connection_planner_t) {
+				print("Delivering amphibious_connection_planner_t")
+				r.node   = r.report.action
+				r.report = null
+			}
 		}
 		else {
 			industry_manager.set_link_state(fsrc, fdest, freight, industry_link_t.st_failed);

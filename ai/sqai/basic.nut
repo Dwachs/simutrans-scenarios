@@ -16,9 +16,12 @@ class r_t
 {
 	// return code composed of return_code constants above
 	code = 0
+	// reports have to be handled
 	report = null
+	// run node immediately
+	node = null
 
-	constructor(c, r=null) { code = c; report = r }
+	constructor(c, r=null, n=null) { code = c; report = r; node = n }
 
 	function is_ready()       { return (code & RT_READY);}
 	function can_be_deleted() { return (code & RT_KILL_ME); }
@@ -86,6 +89,10 @@ class node_seq_t extends node_t
 		}
 		else if (ret.is_ready()) {
 			next_to_step ++
+		}
+		// successor node
+		if (ret.node) {
+			append_child(ret.node)
 		}
 		// our return code
 		local rc = RT_PARTIAL_SUCCESS // want next call, too

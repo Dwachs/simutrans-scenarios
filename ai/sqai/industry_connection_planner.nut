@@ -61,13 +61,23 @@ class industry_connection_planner_t extends manager_t
 		// append a chain of alternative connector nodes
 		local rchain = r.report
 		while (reports.len()>0) {
-			local r = get_report()
-			if (r == null) {
+			local rep = get_report()
+			if (rep == null) {
 				// may happen if no nice reports are available
 				break;
 			}
-			rchain.action.reports.append( r )
-			rchain = r
+			rchain.action.reports.append( rep )
+			rchain = rep
+		}
+
+		local r_amph = report_t()
+		r_amph.action = amphibious_connection_planner_t(fsrc, fdest, freight)
+
+		if (rchain) {
+			rchain.action.reports.append( r_amph )
+		}
+		else {
+			r.report = r_amph
 		}
 
 		local toc = get_ops_total();
