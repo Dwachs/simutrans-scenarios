@@ -9,6 +9,7 @@ class amphibious_connection_planner_t extends industry_connection_planner_t
 
 	function step()
 	{
+		print("amphibious_connection_planner_t " + this)
 		// compute monthly production
 		if (prod < 0) {
 			prod = calc_production()
@@ -57,7 +58,9 @@ class amphibious_connection_planner_t extends industry_connection_planner_t
 					// from_i = first water tile
 					// i      = first land tile (or i==0)
 					// plan between water tiles
-					r = plan_simple_connection(wt_water, from, change ? route[i+1] : null, from_i - (i+1))
+					r = plan_simple_connection(wt_water,
+							from_i < route.len()-1 ? from : null,
+							change ? route[i+1] : null, from_i - (i+1))
 					// set harbour positions
 					if (r) {
 						local shipc = r.action
@@ -90,7 +93,7 @@ class amphibious_connection_planner_t extends industry_connection_planner_t
 		}
 
 
-		return r_t(RT_SUCCESS, report)
+		return r_t(RT_TOTAL_SUCCESS, report)
 	}
 
 	function failed()
