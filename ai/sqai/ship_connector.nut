@@ -361,7 +361,7 @@ class route_finder_water extends astar
 					local cost   = cnode.cost + move
 					local weight = cost + dist
 					// use jump-point search (see dataobj/route.cc)
-					local jps = cnode.previous ? (water_dir ^ 0x0f) | d | cnode.previous.dir : 0x0f
+					local jps = cnode.previous ? (water_dir ^ 0x0f) | d | cnode.dir : 0x0f
 
 					local node = ab_node(to, cnode, cost, weight, dist, d, jps)
 					add_to_open(node, weight)
@@ -398,17 +398,18 @@ class route_finder_water extends astar
 			return { start = route[ route.len()-1], end = route[0] }
 		}
 
-		print("No water deport route found")
+		print("No water depot route found")
 		return { err =  "No route" }
 	}
 }
 
 class route_finder_water_depot extends route_finder_water
 {
-	function estimate_distance(c)
+	function estimate_distance(tile)
 	{
+		return tile.get_objects().get_count()
 		// take first empty tile
-		return 0
+
 	}
 
 	function search_route(watertiles)

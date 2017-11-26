@@ -128,7 +128,7 @@ class finder {
 		local from = pos
 		for(local i = 0; i<len; i++) {
 			local to = from.get_neighbour(wt_water, d)
-			if (to  &&  _tile_water(to) ) {
+			if (to  &&  _tile_water(to)  &&  to.can_remove_all_objects(our_player)==null) {
 				from = to
 			}
 			else {
