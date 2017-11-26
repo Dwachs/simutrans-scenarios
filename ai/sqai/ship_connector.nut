@@ -9,13 +9,15 @@ class ship_connector_t extends manager_t
 	planned_convoy = null
 	planned_way = null // unused
 	planned_depot = null
+	finalize = true
 
 	// step-by-step construct the connection
 	phase = 0
-	// generated data
-	c_start = null
-	c_end   = null
+	// can be provided optionally
+	c_start = null // array, must be water tiles
+	c_end   = null // array, must be water tiles
 	c_harbour_tiles = null
+	// generated data
 	c_depot = null
 	c_sched = null
 	c_line  = null
@@ -44,8 +46,12 @@ class ship_connector_t extends manager_t
 			}
 			case 1:
 				// find empty water tiles
-				c_start = find_anchorage(fsrc,  planned_station, planned_harbour_flat, c_harbour_tiles)
-				c_end   = find_anchorage(fdest, planned_station, planned_harbour_flat, c_harbour_tiles)
+				if (c_start == null) {
+					c_start = find_anchorage(fsrc,  planned_station, planned_harbour_flat, c_harbour_tiles)
+				}
+				if (c_end == null) {
+					c_end   = find_anchorage(fdest, planned_station, planned_harbour_flat, c_harbour_tiles)
+				}
 
 				if (c_start.len()>0  &&  c_end.len()>0) {
 					phase ++
@@ -81,7 +87,7 @@ class ship_connector_t extends manager_t
 						}
 					}
 					if (err) {
-						print("Failed to build station at " + key + " / " + err)
+						print("Failed to build harbour at " + key + " / " + err)
 						return error_handler()
 					}
 
@@ -110,7 +116,7 @@ class ship_connector_t extends manager_t
 							print("Failed to build depot at " + coord_to_string(c_depot))
 							return error_handler()
 						}
-						{
+						if (finalize) {
 							// store depot location
 							local fs = ::station_manager.access_freight_station(fsrc)
 							if (fs.ship_depot == null) {
@@ -165,7 +171,9 @@ class ship_connector_t extends manager_t
 
 		}
 
-		industry_manager.set_link_state(fsrc, fdest, freight, industry_link_t.st_built)
+		if (finalize) {
+			industry_manager.set_link_state(fsrc, fdest, freight, industry_link_t.st_built)
+		}
 		industry_manager.access_link(fsrc, fdest, freight).append_line(c_line)
 
 		return r_t(RT_TOTAL_SUCCESS)
@@ -226,6 +234,7 @@ class ship_connector_t extends manager_t
 							// check place for flat one
 							local size = planned_harbour_flat.get_size(0)
 							ok = finder.check_harbour_place(tile, size.x*size.y, dir.backward(d))
+							// TODO check that only one direction is possible
 						}
 						if (ok) {
 							anch.append(tile)
@@ -249,7 +258,7 @@ class ship_connector_t extends manager_t
 		local err = null
 		local len = 0
 		local dif = { x=tile.x-water.x, y=tile.y-water.y}
-		print("Place harbour at " + coord_to_string(tile) + " to access " + coord_to_string(water) )
+		print("Place harbour at " + coord3d_to_string(tile) + " to access " + coord3d_to_string(water) )
 
 		if (tile.get_slope()) {
 

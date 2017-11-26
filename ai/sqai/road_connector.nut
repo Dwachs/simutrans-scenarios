@@ -8,12 +8,14 @@ class road_connector_t extends manager_t
 	planned_station = null
 	planned_depot = null
 	planned_convoy = null
+	finalize = true
 
 	// step-by-step construct the connection
 	phase = 0
+	// can be provided optionally
+	c_start = null // array
+	c_end   = null // array
 	// generated data
-	c_start = null
-	c_end   = null
 	c_depot = null
 	c_sched = null
 	c_line  = null
@@ -33,9 +35,11 @@ class road_connector_t extends manager_t
 
 		switch(phase) {
 			case 0: // find places for stations
-				c_start = ::finder.find_station_place(fsrc, fdest)
-				if (c_start) {
-					c_end   = ::finder.find_station_place(fdest, c_start, true)
+				if (c_start == null) {
+					c_start = ::finder.find_station_place(fsrc, fdest)
+				}
+				if (c_start  &&  c_end == null) {
+					c_end   = ::finder.find_station_place(fdest, c_start, !finalize)
 				}
 
 				if (c_start.len()>0  &&  c_end.len()>0) {
@@ -69,7 +73,7 @@ class road_connector_t extends manager_t
 						print("Failed to build station at " + coord_to_string(c_end))
 						return error_handler()
 					}
-					{
+					if (finalize) {
 						// store place of unload station for future use
 						local fs = ::station_manager.access_freight_station(fdest)
 						if (fs.road_unload == null) {
@@ -99,7 +103,7 @@ class road_connector_t extends manager_t
 							print("Failed to build depot at " + coord_to_string(c_depot))
 							return error_handler()
 						}
-						{
+						if (finalize) {
 							// store depot location
 							local fs = ::station_manager.access_freight_station(fsrc)
 							if (fs.road_depot == null) {
@@ -154,7 +158,9 @@ class road_connector_t extends manager_t
 
 		}
 
-		industry_manager.set_link_state(fsrc, fdest, freight, industry_link_t.st_built)
+		if (finalize) {
+			industry_manager.set_link_state(fsrc, fdest, freight, industry_link_t.st_built)
+		}
 		industry_manager.access_link(fsrc, fdest, freight).append_line(c_line)
 
 		return r_t(RT_TOTAL_SUCCESS)

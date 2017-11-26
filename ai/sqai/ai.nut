@@ -19,8 +19,10 @@ sum <- @(a,b) a+b
 include("basic")
 include("astar")
 include("save")
+
 include("factorysearcher")
 include("industry_connection_planner")
+include("combined_connections")
 include("industry_manager")
 include("placefinder")
 include("prototyper")
