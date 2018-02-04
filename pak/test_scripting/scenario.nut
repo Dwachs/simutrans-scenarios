@@ -25,6 +25,7 @@ function start()
 	debug_text = ""
 	test_is_valid()
 	test_building()
+	test_map_objects()
 }
 
 
@@ -158,4 +159,14 @@ function test_building()
 
 	testprint("test same_building1 ", bookshop1.is_same_building(bookshop2), true)
 	testprint("test same_building2 ", bookshop1.is_same_building(townhall), false)
+}
+
+function test_map_objects()
+{
+	{
+		local rs = sign_x(23, 48, 4)
+		testprint("test roadsign_passable1 ", rs.can_pass(player_x(0)), true)
+		testprint("test roadsign_passable1 ", rs.can_pass(player_x(2)), true)
+		testprint("test roadsign_passable1 ", rs.can_pass(player_x(3)), false)
+	}
 }
