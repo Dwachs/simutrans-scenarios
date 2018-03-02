@@ -376,7 +376,7 @@ class route_finder_water extends astar
 					local cost   = cnode.cost + move
 					local weight = cost + dist
 					// use jump-point search (see dataobj/route.cc)
-					local jps = cnode.previous ? (water_dir ^ 0x0f) | d | cnode.dir : 0x0f
+					local jps = cnode.previous ? (water_dir ^ 0x0f) | d | cnode.dir | from.get_canal_ribi() : 0x0f
 
 					local node = ab_node(to, cnode, cost, weight, dist, d, jps)
 					add_to_open(node, weight)
