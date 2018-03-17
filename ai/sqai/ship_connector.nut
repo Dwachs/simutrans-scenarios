@@ -368,7 +368,7 @@ class route_finder_water extends astar
 
 			local to = from.get_neighbour(wt_water, d)
 			if (to) {
-				if (::finder._tile_water(to)  &&  !is_closed(to)) {
+				if (::finder._tile_water_way(to)  &&  !is_closed(to)) {
 					// estimate moving cost
 					local move = ((dir.double(d) & cnode.dir) != 0) ? /* straight */ 14 : /* curve */ 10
 					local dist   = 10*estimate_distance(to)

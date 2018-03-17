@@ -105,6 +105,23 @@ class finder {
 		return tile.is_water()  &&  (tile.find_object(mo_building)==null)  &&  (tile.find_object(mo_depot_water)==null)
 	}
 
+	static function _tile_water_way(tile)
+	{
+		if (tile.is_water()) {
+			return true // (tile.find_object(mo_building)==null)  &&  (tile.find_object(mo_depot_water)==null)
+		}
+		else {
+			foreach(obj in tile.get_objects()) {
+				if (obj.get_type() != mo_way) continue;
+
+				if (obj.get_waytype() == wt_water) {
+					return obj.get_desc().get_topspeed() > 5
+				}
+			}
+		}
+		return false
+	}
+
 	static function find_station_place(factory, target, unload = false)
 	{
 		if (unload) {

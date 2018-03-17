@@ -43,11 +43,11 @@ class amphibious_connection_planner_t extends industry_connection_planner_t
 		local i = route.len()-1;
 		local from = tile_x(route[i].x, route[i].y, route[i].z)
 		local from_i = i
-		local on_water = from.is_water()
+		local on_water = ::finder._tile_water_way(from)
 		i--
 		for(; i>=0; i--) {
 			local to = tile_x(route[i].x, route[i].y, route[i].z)
-			local to_water = to.is_water()
+			local to_water = ::finder._tile_water_way(to)
 			local change = to_water != on_water
 
 			if (change || i==0) {
@@ -131,12 +131,14 @@ class amphibious_pathfinder_t extends astar
 	{
 		local from = tile_x(cnode.x, cnode.y, cnode.z)
 		local back = dir.backward(cnode.dir)
-		local from_water = from.is_water()
+		local from_water = ::finder._tile_water_way(from)
 		local water_dir = from.get_way_dirs(wt_water)
 
 		// flags
 		// 0x0f -> jps
 		// 0x10 -> find flat place
+		// 0x20 -> flat place (mark next step with 0x40)
+		// 0x40 -> cannot go into water
 		if (cnode.flag == 0x10) {
 			process_node_to_land(cnode, from)
 			return
@@ -153,12 +155,7 @@ class amphibious_pathfinder_t extends astar
 			local to = from.get_neighbour(wt_all, d)
 
 			if (to  &&  !is_closed(to)) {
-				local to_water = ::finder._tile_water(to)
-
-				if (to_water != to.is_water()) {
-					// forbidden water tile
-					continue
-				}
+				local to_water = ::finder._tile_water_way(to)
 
 				// water -> water
 				// land -> land
@@ -176,12 +173,14 @@ class amphibious_pathfinder_t extends astar
 					// use jump-point search (see dataobj/route.cc)
 					local jps = to_water  &&  (cnode.previous) ? (water_dir ^ 0x0f) | d | cnode.dir | from.get_canal_ribi() : 0x0f
 
+					if (cnode.flag & 0x20) jps = jps | 0x40;
+
 					local node = ab_node(to, cnode, cost, weight, dist, d, jps)
 					add_to_open(node, weight)
 				}
 				else if (from_water) {
 					// water -> land
-					if (!to.is_empty()  ||  to.get_slope()==0
+					if (!from.is_water()  ||  !to.is_empty()  ||  to.get_slope()==0
 						||  !finder.check_harbour_place(from, planned_harbour_len, dir.backward(d)))
 					{
 						continue
@@ -195,7 +194,8 @@ class amphibious_pathfinder_t extends astar
 				}
 				else {
 					// land -> water
-					if (!from.is_empty()  ||  from.get_slope()==0
+					if (!to.is_water()  ||  !from.is_empty()  ||  from.get_slope()==0
+						||  (cnode.flag & 0x60)
 						||  !finder.check_harbour_place(to, planned_harbour_len, d))
 					{
 						continue
