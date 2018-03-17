@@ -88,6 +88,9 @@ class industry_connection_planner_t extends manager_t
 	// if start or target are null then use fsrc/fdest
 	function plan_simple_connection(wt, start, target, distance = 0)
 	{
+		if (distance == 0) {
+			distance = 1
+		}
 		// plan convoy prototype
 		local prototyper = prototyper_t(wt, freight)
 
