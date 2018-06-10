@@ -451,4 +451,3 @@ class route_finder_water_depot extends route_finder_water
 		return { err =  "No route" }
 	}
 }
-

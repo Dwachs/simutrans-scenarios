@@ -332,6 +332,3 @@ class depot_pathfinder extends astar_builder
 		return { err =  "No route" }
 	}
 }
-
-
-

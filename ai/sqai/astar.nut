@@ -320,4 +320,3 @@ class astar_builder extends astar
 		return { err =  "No route" }
 	}
 }
-
