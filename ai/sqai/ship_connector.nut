@@ -186,9 +186,9 @@ class ship_connector_t extends manager_t
 		if (reports.len()>0) {
 			// there are alternatives
 			print("Delivering alternative connector")
-			r.report = get_report()
+			r.report = reports.pop()
 
-			if (r.report.action.getclass() == amphibious_connection_planner_t) {
+			if (r.report.action  &&  r.report.action.getclass() == amphibious_connection_planner_t) {
 				print("Delivering amphibious_connection_planner_t")
 				r.node   = r.report.action
 				r.report = null
