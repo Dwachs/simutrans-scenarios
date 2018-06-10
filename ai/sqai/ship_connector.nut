@@ -230,7 +230,7 @@ class ship_connector_t extends manager_t
 					local to = tile.get_neighbour(wt_all, d)
 
 					if (to  &&  to.is_empty()) {
-						local ok = true
+						local ok = false
 						if (to.get_slope() !=0) {
 							// check place for harbour
 							local size = planned_station.get_size(0)
