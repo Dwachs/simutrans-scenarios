@@ -42,8 +42,8 @@ class amphibious_connection_planner_t extends industry_connection_planner_t
 		// now loop through route backwards
 		local i = route.len()-1;
 		local from = tile_x(route[i].x, route[i].y, route[i].z)
-		local from_i = i
 		local on_water = ::finder._tile_water_way(from)
+		local from_i = on_water ? i : i+1;
 		i--
 		for(; i>=0; i--) {
 			local to = tile_x(route[i].x, route[i].y, route[i].z)
