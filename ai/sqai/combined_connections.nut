@@ -180,7 +180,7 @@ class amphibious_pathfinder_t extends astar
 				}
 				else if (from_water) {
 					// water -> land
-					if (!from.is_water()  ||  !to.is_empty()  ||  to.get_slope()==0
+					if (!from.is_water()  ||  !to.is_empty()  ||  dir.to_slope(d) != to.get_slope()
 						||  !finder.check_harbour_place(from, planned_harbour_len, dir.backward(d)))
 					{
 						continue
@@ -194,7 +194,7 @@ class amphibious_pathfinder_t extends astar
 				}
 				else {
 					// land -> water
-					if (!to.is_water()  ||  !from.is_empty()  ||  from.get_slope()==0
+					if (!to.is_water()  ||  !from.is_empty()  ||  dir.to_slope(dir.backward(d)) != from.get_slope()
 						||  (cnode.flag & 0x60)
 						||  !finder.check_harbour_place(to, planned_harbour_len, d))
 					{
