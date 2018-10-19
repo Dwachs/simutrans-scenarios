@@ -26,6 +26,8 @@ function start()
 	test_is_valid()
 	test_building()
 	test_map_objects()
+	test_tiles()
+	gui.open_info_win_at("debug")
 }
 
 
@@ -73,9 +75,12 @@ function get_result_text(pl)
 	return "Go away"
 }
 
+local open_dbg = true
 
 function is_scenario_completed(pl)
 {
+	if (open_dbg) gui.open_info_win_at("debug")
+	open_dbg = false
 	return  1
 }
 
@@ -169,4 +174,15 @@ function test_map_objects()
 		testprint("test roadsign_passable1 ", rs.can_pass(player_x(2)), true)
 		testprint("test roadsign_passable1 ", rs.can_pass(player_x(3)), false)
 	}
+}
+
+function test_tiles()
+{
+	local tile = square_x(21,50).get_ground_tile();
+
+	testprint("test get_ground_tile ", tile.z, 4);
+	testprint("test is_marked1 ", tile.is_marked(), tile.is_marked())
+	tile.mark()
+	testprint("test is_marked2 ", tile.is_marked(), true)
+	tile.unmark()
 }
