@@ -165,8 +165,8 @@ class amphibious_pathfinder_t extends astar
 						continue;
 					}
 					// estimate moving cost
-					local move = ((dir.double(d) & cnode.dir) != 0) ? /* straight */ 14 : /* curve */ 10
-					local dist   = 10*estimate_distance(to)
+					local move   = cnode.is_straight_move(d)  ?  cost_straight  :  cost_curve
+					local dist   = estimate_distance(to)
 
 					local cost   = cnode.cost + move
 					local weight = cost + dist
@@ -186,7 +186,7 @@ class amphibious_pathfinder_t extends astar
 						continue
 					}
 					local move   = 333;
-					local dist   = 10*estimate_distance(to)
+					local dist   = estimate_distance(to)
 					local weight = cnode.cost + dist
 
 					local node = ab_node(to, cnode, cnode.cost + move, weight, dist, d, 0x10)
@@ -209,7 +209,7 @@ class amphibious_pathfinder_t extends astar
 					}
 
 					local move   = 333;
-					local dist   = 10*estimate_distance(to)
+					local dist   = estimate_distance(to)
 					local weight = cnode.cost + dist
 
 					local node = ab_node(to, cnode, cnode.cost + move, weight, dist, d, 0x0f)
@@ -234,7 +234,7 @@ class amphibious_pathfinder_t extends astar
 					if (to  &&  to.is_empty()  &&  to.get_slope()==0) {
 						// can place station here
 						local move   = 17
-						local dist   = 10*estimate_distance(to)
+						local dist   = estimate_distance(to)
 
 						local cost   = cnode.cost + move
 						local weight = cost + dist

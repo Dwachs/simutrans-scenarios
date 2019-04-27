@@ -370,8 +370,8 @@ class route_finder_water extends astar
 			if (to) {
 				if (::finder._tile_water_way(to)  &&  !is_closed(to)) {
 					// estimate moving cost
-					local move = ((dir.double(d) & cnode.dir) != 0) ? /* straight */ 14 : /* curve */ 10
-					local dist   = 10*estimate_distance(to)
+					local move   = cnode.is_straight_move(d)  ?  cost_straight  :  cost_curve
+					local dist   = estimate_distance(to)
 
 					local cost   = cnode.cost + move
 					local weight = cost + dist
