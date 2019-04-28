@@ -222,7 +222,6 @@ class amphibious_pathfinder_t extends astar
 	function process_node_to_land(cnode, from)
 	{
 		local pos = coord(cnode.x, cnode.y)
-		//label_x.create(cnode, our_player, "n2l")
 
 		for(local d0 = 1; d0<16; d0*=2) {
 			for (local d = d0; d <= 3*d0; d+=2*d0) {

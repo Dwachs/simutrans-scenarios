@@ -322,12 +322,13 @@ class astar_builder extends astar
 
 				if (route[i-1].flag == 0) {
 					err = command_x.build_way(our_player, route[i-1], route[i], way, false)
+					if (err) gui.add_message_at(our_player, "Failed to build road from  " + coord_to_string(route[i-1]) + " to " + coord_to_string(route[i]) +"\n" + err, route[i])
 				}
 				else if (route[i-1].flag == 1) {
 					err = command_x.build_bridge(our_player, route[i], route[i-1], bridger.bridge)
+					if (err) gui.add_message_at(our_player, "Failed to build bridge from  " + coord_to_string(route[i-1]) + " to " + coord_to_string(route[i]) +"\n" + err, route[i])
 				}
 				if (err) {
-					label_x.create(route[i], our_player, "<" + err + "> " + coord3d_to_string(route[i-1]) + " / " +  route[i-1].flag + " / " + route[i].flag )
 					return { err =  err }
 				}
 			}
