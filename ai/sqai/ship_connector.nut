@@ -202,6 +202,8 @@ class ship_connector_t extends manager_t
 
 	static function find_anchorage(factory, planned_station, planned_harbour_flat, c_harbour_tiles)
 	{
+		// TODO find slopes near water in range of factory
+
 		// try to find tiles already covered by some harbours
 		local tile_list = ::finder.find_water_places( ::finder.get_tiles_near_factory(factory) )
 		local halt_list = factory.get_halt_list()
