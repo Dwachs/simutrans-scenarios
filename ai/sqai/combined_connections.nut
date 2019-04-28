@@ -202,8 +202,8 @@ class amphibious_pathfinder_t extends astar
 					}
 					if (cnode.previous) {
 						local fromfrom = tile_x(cnode.previous.x, cnode.previous.y, cnode.previous.z)
-						// want to build station here
-						if (fromfrom == null  ||  !fromfrom.is_empty()  ||  fromfrom.get_slope()!=0) {
+						// want to build station here with one connecting road
+						if (fromfrom == null  ||  !fromfrom.is_empty()  ||  fromfrom.get_slope()!=0  ||  cnode.previous.previous == null) {
 							continue
 						}
 					}
