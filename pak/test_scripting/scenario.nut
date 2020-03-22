@@ -27,6 +27,7 @@ function start()
 	test_building()
 	test_map_objects()
 	test_tiles()
+	test_transformer()
 	gui.open_info_win_at("debug")
 }
 
@@ -185,4 +186,44 @@ function test_tiles()
 	tile.mark()
 	testprint("test is_marked2 ", tile.is_marked(), true)
 	tile.unmark()
+}
+
+function test_transformer()
+{
+	// transformer at 47,99,3; 72,103,4; 65,47,2
+	// factories at   45,99,2; 73,101,4; 65,45
+	// factory without at 33,54
+
+	{
+		local tr1 = transformer_x(47,99,3);
+		local fac1 = factory_x(45,99);
+		local fac2 = tr1.get_factory();
+		testprint("test transformer_x::get_factory ", (fac1.x==fac2.x)  &&  (fac1.y==fac2.y), true);
+
+		local tr2 = fac2.get_transformer()
+		testprint("test factory_x::get_transformer 1 ", (tr1.x==tr2.x)  &&  (tr1.y==tr2.y) &&  (tr1.z==tr2.z), true);
+		testprint("test factory_x::is_transformer_connected 1 ", fac2.is_transformer_connected(), true);
+	}
+	{
+		local tr1 = transformer_x(72,103,4);
+		local fac1 = factory_x(73,101);
+		local fac2 = tr1.get_factory();
+		testprint("test transformer_x::get_factory ", (fac1.x==fac2.x)  &&  (fac1.y==fac2.y), true);
+	}
+	{
+		local fac2 = factory_x(33,54)
+		testprint("test factory_x::get_transformer 2 ", fac2.get_transformer(), null);
+		testprint("test factory_x::is_transformer_connected 2 ", fac2.is_transformer_connected(), false);
+	}
+	{
+		local tr1 = transformer_x(47,99,3);
+		local tr2 = transformer_x(72,103,4);
+		local tr3 = transformer_x(65,47,2);
+		local lt  = powerline_x(48,99,3);
+		testprint("test powerline_x::is_connected 1 ", tr1.is_connected(tr2), true);
+		testprint("test powerline_x::is_connected 2 ", tr1.is_connected(tr3), false);
+		testprint("test powerline_x::is_connected 3 ", lt.is_connected(tr2), true);
+		testprint("test powerline_x::is_connected 4 ", lt.is_connected(tr3), false);
+
+	}
 }
