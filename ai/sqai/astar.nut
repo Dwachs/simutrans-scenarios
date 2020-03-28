@@ -288,7 +288,7 @@ class astar_builder extends astar
 						// set distance to 1 if at a target tile,
 						// still route might come back to this tile in a loop (?)
 						// but if there is space for a loop there is also place for another target tile (?)
-						local dist = max(estimate_distance(to), 0)
+						local dist = max(estimate_distance(to), 1)
 
 						local cost   = cnode.cost + move
 						local weight = cost + dist
