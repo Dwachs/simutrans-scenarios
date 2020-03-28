@@ -320,9 +320,21 @@ class astar_builder extends astar
 		search()
 
 		if (route.len() > 0) {
-			for (local i = 1; i<route.len(); i++) {
-				local err
+			// do not try to build in tunnels
+			local is_tunnel_0 = tile_x(route[0].x, route[0].y, route[0].z).find_object(mo_tunnel)
+			local is_tunnel_1 = is_tunnel_0
 
+			for (local i = 1; i<route.len(); i++) {
+				// check for tunnel
+				is_tunnel_0 = is_tunnel_1
+				is_tunnel_1 = tile_x(route[i].x, route[i].y, route[i].z).find_object(mo_tunnel)
+
+				if (is_tunnel_0 && is_tunnel_1) {
+					continue
+				}
+
+				local err
+				// build
 				if (route[i-1].flag == 0) {
 					err = command_x.build_way(our_player, route[i-1], route[i], way, false)
 					if (err) gui.add_message_at(our_player, "Failed to build road from  " + coord_to_string(route[i-1]) + " to " + coord_to_string(route[i]) +"\n" + err, route[i])
