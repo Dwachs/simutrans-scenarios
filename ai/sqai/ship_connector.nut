@@ -41,8 +41,10 @@ class ship_connector_t extends manager_t
 
 			case 0: {
 				// find flat harbour building
-				local station_list = building_desc_x.get_available_stations(building_desc_x.flat_harbour, wt_water, good_desc_x(freight))
-				planned_harbour_flat = industry_connection_planner_t.select_station(station_list, 1, planned_convoy.capacity)
+				if (planned_harbour_flat == null) {
+					local station_list = building_desc_x.get_available_stations(building_desc_x.flat_harbour, wt_water, good_desc_x(freight))
+					planned_harbour_flat = industry_connection_planner_t.select_station(station_list, 1, planned_convoy.capacity)
+				}
 				phase ++
 			}
 			case 1:
@@ -286,7 +288,8 @@ class ship_connector_t extends manager_t
 			len = size.x*size.y
 		}
 		else {
-			err = command_x.build_station(our_player, tile, planned_harbour_flat)
+			local dir = dir.backward(coord_to_dir( dif) )
+			err = command_x.build_station(our_player, tile, planned_harbour_flat, dir)
 			if (err) gui.add_message_at(our_player, "Failed to flat harbour at " + coord_to_string(tile) +"\n" + err, tile)
 
 			local size = planned_harbour_flat.get_size(0)
