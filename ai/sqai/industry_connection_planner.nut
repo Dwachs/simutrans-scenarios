@@ -97,7 +97,14 @@ class industry_connection_planner_t extends manager_t
 	// if start or target are null then use fsrc/fdest
 	function plan_simple_connection(wt, start, target, distance = 0)
 	{
+		// compute correct distance
 		if (distance == 0) {
+			foreach(i in ["x", "y"]) {
+				distance += abs( (start ? start[i] : fsrc[i]) - (target ? target[i] : fdest[i]))
+			}
+		}
+		if (distance == 0) {
+			// still zero? avoid division by zero in the prototyper
 			distance = 1
 		}
 		// plan convoy prototype
@@ -117,12 +124,6 @@ class industry_connection_planner_t extends manager_t
 		cnv_valuator.volume = prod
 		cnv_valuator.max_cnvs = 200
 		cnv_valuator.distance = distance
-		// compute correct distance
-		if (distance == 0) {
-			foreach(i in ["x", "y"]) {
-				cnv_valuator.distance += abs( (start ? start[i] : fsrc[i]) - (target ? target[i] : fdest[i]))
-			}
-		}
 
 		local bound_valuator = valuator_simple_t.valuate_monthly_transport.bindenv(cnv_valuator)
 		prototyper.valuate = bound_valuator
