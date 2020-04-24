@@ -150,7 +150,6 @@ class finder {
 
 	/**
 	 * Can harbour of length @p len placed at @p pos in direction @p d.
-	 * @param first water tile of harbour
 	 */
 	static function check_harbour_place(pos, len, d /* direction */)
 	{
