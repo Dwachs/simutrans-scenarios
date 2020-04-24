@@ -172,10 +172,19 @@ class amphibious_pathfinder_t extends astar
 				// water -> water
 				// land -> land
 				if (from_water ==  to_water) {
-					// can we build way here
-					if (!from_water  &&  !builder.is_allowed_step(from, to)) {
-						// could be a halt on the other tile that has harbour that could be used
-						continue;
+					// can we build way here?
+					if (!from_water) {
+						// empty space for station near a halt with harbour
+						local halt = to.get_halt()
+						if (halt  &&  halt.get_owner().nr == our_player_nr  &&  from.is_empty()) {
+							// try to connect to this halt and to use its harbours
+							process_node_to_land_halt(cnode, halt)
+						}
+						// can we build way here?
+						if (!builder.is_allowed_step(from, to)) {
+							// could be a halt on the other tile that has harbour that could be used
+							continue;
+						}
 					}
 					// estimate moving cost
 					local move   = cnode.is_straight_move(d)  ?  cost_straight  :  cost_curve
@@ -316,6 +325,45 @@ class amphibious_pathfinder_t extends astar
 					}
 				}
 				catch(ev) {}
+			}
+		}
+	}
+
+	/**
+	 * Does steps land-tile -> halt -> harbour -> water
+	 * Last route tile is cnode, check if station can be placed.
+	 * Check for harbour tiles, put corresponding nodes to open list.
+	 */
+	function process_node_to_land_halt(cnode, halt)
+	{
+		// process all tiles of this halt
+		foreach(tile in halt.get_tile_list()) {
+			if (!tile.is_water()  &&  ship_connector_t.get_harbour_halt(tile)!=null) {
+				local harbour_node = ab_node(tile, cnode, cnode.cost, cnode.dist, 0x0f, 0x0f)
+				local d = 0
+				if (tile.get_slope()) {
+					// get direction from slope
+					d = dir.backward(slope.to_dir(tile.get_slope()))
+				}
+				else {
+					// flat dock, check all four neighbour tiles for water + harbour
+					d = 1
+				}
+				do {
+					local to = coord3d(tile.x, tile.y, tile.z) + dir.to_coord(d)
+					if (world.is_coord_valid(to)) {
+						local move   = cost_road_stop
+						local dist   = estimate_distance(to)
+
+						local cost   = cnode.cost + move
+						local weight = cost + dist
+
+						local node = ab_node(to, harbour_node, cost, dist, d, 0x0f)
+						add_to_open(node, weight)
+					}
+
+					d = d*2
+				} while (tile.get_slope()==0  &&  d<16)
 			}
 		}
 	}
