@@ -260,6 +260,23 @@ class ship_connector_t extends manager_t
 	}
 
 	/**
+	 * Checks whether there is already a harbour on this tile.
+	 * @returns corresponding halt_x object (or null)
+	 */
+	static function get_harbour_halt(tile)
+	{
+		local halt = tile.get_halt()
+		if (halt  &&  halt.get_owner().nr == our_player_nr) {
+			// our halt
+			local harb = tile.find_object(mo_building)
+			if (harb  &&  (harb.get_desc().get_type()==building_desc_x.harbour  ||  harb.get_desc().get_type()==building_desc_x.flat_harbour) ) {
+				return halt
+			}
+		}
+		return null
+	}
+
+	/**
 	 * Build harbour at @p tile,
 	 * replace water with an array containing all water tiles next to the harbour
 	 */
@@ -271,7 +288,10 @@ class ship_connector_t extends manager_t
 		local dif = { x=tile.x-water.x, y=tile.y-water.y}
 		print("Place harbour at " + coord3d_to_string(tile) + " to access " + coord3d_to_string(water) )
 
-		if (tile.get_slope()) {
+		if (get_harbour_halt(tile)) {
+			// already there
+		}
+		else if (tile.get_slope()) {
 
 			local slope = dir.to_slope(coord_to_dir(dif))
 			// terraform ??

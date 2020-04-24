@@ -174,6 +174,7 @@ class amphibious_pathfinder_t extends astar
 				if (from_water ==  to_water) {
 					// can we build way here
 					if (!from_water  &&  !builder.is_allowed_step(from, to)) {
+						// could be a halt on the other tile that has harbour that could be used
 						continue;
 					}
 					// estimate moving cost
@@ -192,6 +193,17 @@ class amphibious_pathfinder_t extends astar
 				}
 				else if (from_water) {
 					// water -> land
+					if (from.is_water()  &&  to.get_halt()) {
+						// check for existing harbour
+						local halt = ship_connector_t.get_harbour_halt(to)
+						if (halt) {
+							// create node as end node of water route
+							local harbour_node = ab_node(to, cnode, cnode.cost, cnode.weight, cnode.dist, 0x0f, 0x0f)
+							// now look for empty spots to connect to this halt
+							process_node_to_harbour(harbour_node, halt)
+						}
+					}
+					// we have to build ourselves
 					if (!from.is_water()  ||  !to.is_empty()
 						||  !check_slope_for_harbour(to)
 						||  !finder.check_harbour_place(from, to.get_slope() ? planned_harbour_len : planned_harbour_flat_len, dir.backward(d)))
@@ -270,6 +282,37 @@ class amphibious_pathfinder_t extends astar
 
 						local node = ab_node(to, cnode, cost, weight, dist, 0x0f, 0x0f)
 						add_to_open(node, weight)
+					}
+				}
+				catch(ev) {}
+			}
+		}
+	}
+
+	function process_node_to_harbour(cnode, halt)
+	{
+		local visited = {}
+		// process all tiles of this halt
+		foreach(tile in halt.get_tile_list()) {
+			// check all neighbouring tiles for empty spots
+			for(local d = 1; d<16; d*=2) {
+				local c = coord(tile.x, tile.y) + dir.to_coord(d)
+				try {
+					local to = square_x(c.x, c.y).get_ground_tile()
+
+					if (to  &&  to.is_empty()  &&  to.get_slope()==0  &&  !(coord3d_to_key(to) in visited) ) {
+						// can place station here
+						local move   = cost_road_stop
+						local dist   = estimate_distance(to)
+
+						local cost   = cnode.cost + move
+						local weight = cost + dist
+
+						local node = ab_node(to, cnode, cost, weight, dist, 0x0f, 0x0f)
+						add_to_open(node, weight)
+
+						// mark as visited
+						visited[ coord3d_to_key(to) ] <- 1
 					}
 				}
 				catch(ev) {}
