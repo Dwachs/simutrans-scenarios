@@ -188,7 +188,7 @@ class amphibious_pathfinder_t extends astar
 
 					if (cnode.flag & 0x20) jps = jps | 0x40;
 
-					local node = ab_node(to, cnode, cost, weight, dist, d, jps)
+					local node = ab_node(to, cnode, cost, dist, d, jps)
 					add_to_open(node, weight)
 				}
 				else if (from_water) {
@@ -198,7 +198,7 @@ class amphibious_pathfinder_t extends astar
 						local halt = ship_connector_t.get_harbour_halt(to)
 						if (halt) {
 							// create node as end node of water route
-							local harbour_node = ab_node(to, cnode, cnode.cost, cnode.weight, cnode.dist, 0x0f, 0x0f)
+							local harbour_node = ab_node(to, cnode, cnode.cost, cnode.dist, 0x0f, 0x0f)
 							// now look for empty spots to connect to this halt
 							process_node_to_harbour(harbour_node, halt)
 						}
@@ -215,7 +215,7 @@ class amphibious_pathfinder_t extends astar
 					local cost   = cnode.cost + move
 					local weight = cost + dist
 
-					local node = ab_node(to, cnode, cost, weight, dist, d, 0x10)
+					local node = ab_node(to, cnode, cost, dist, d, 0x10)
 
 					add_to_open(node, weight)
 				}
@@ -241,7 +241,7 @@ class amphibious_pathfinder_t extends astar
 					local cost   = cnode.cost + move
 					local weight = cost + dist
 
-					local node = ab_node(to, cnode, cost, weight, dist, d, 0x0f)
+					local node = ab_node(to, cnode, cost, dist, d, 0x0f)
 					add_to_open(node, weight)
 				}
 			}
@@ -280,7 +280,7 @@ class amphibious_pathfinder_t extends astar
 						local cost   = cnode.cost + move
 						local weight = cost + dist
 
-						local node = ab_node(to, cnode, cost, weight, dist, 0x0f, 0x0f)
+						local node = ab_node(to, cnode, cost, dist, 0x0f, 0x0f)
 						add_to_open(node, weight)
 					}
 				}
@@ -308,7 +308,7 @@ class amphibious_pathfinder_t extends astar
 						local cost   = cnode.cost + move
 						local weight = cost + dist
 
-						local node = ab_node(to, cnode, cost, weight, dist, 0x0f, 0x0f)
+						local node = ab_node(to, cnode, cost, dist, 0x0f, 0x0f)
 						add_to_open(node, weight)
 
 						// mark as visited

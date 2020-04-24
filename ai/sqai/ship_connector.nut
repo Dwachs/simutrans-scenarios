@@ -430,7 +430,7 @@ class route_finder_water extends astar
 					// use jump-point search (see dataobj/route.cc)
 					local jps = cnode.previous ? (water_dir ^ 0x0f) | d | cnode.dir | from.get_canal_ribi() : 0x0f
 
-					local node = ab_node(to, cnode, cost, weight, dist, d, jps)
+					local node = ab_node(to, cnode, cost, dist, d, jps)
 					add_to_open(node, weight)
 				}
 			}
@@ -451,7 +451,7 @@ class route_finder_water extends astar
 			if (dist == 0) {
 				continue
 			}
-			add_to_open(ab_node(s, null, 1, dist+1, dist, 0), dist+1)
+			add_to_open(ab_node(s, null, 1, dist+1, 0), dist+1)
 		}
 
 		search()
@@ -509,7 +509,7 @@ class route_finder_water_depot extends route_finder_water
 		for(local i=0; i<watertiles.len(); i++)
 		{
 			local dist = (watertiles.len() - i)*10;
-			process_node(ab_node(watertiles[i], null, 1, dist+1, dist, 0))
+			process_node(ab_node(watertiles[i], null, 1, dist+1, 0))
 		}
 
 		search()

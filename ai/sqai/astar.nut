@@ -2,16 +2,14 @@ class astar_node extends coord3d
 {
 	previous = null // previous node
 	cost     = -1   // cost to reach this node
-	weight   = -1   // heuristic cost to reach target
 	dist     = -1   // distance to target
-	constructor(c, p, co, w, d)
+	constructor(c, p, co, d)
 	{
 		x = c.x
 		y = c.y
 		z = c.z
 		previous = p
 		cost     = co
-		weight   = w
 		dist     = d
 	}
 	function is_straight_move(d)
@@ -187,9 +185,9 @@ class ab_node extends ::astar_node
 {
 	dir = 0 // direction to reach this node
 	flag = 0
-	constructor(c, p, co, w, d, di, fl=0)
+	constructor(c, p, co, d, di, fl=0)
 	{
-		base.constructor(c, p, co, w, d)
+		base.constructor(c, p, co, d)
 		dir  = di
 		flag = fl
 	}
@@ -268,7 +266,7 @@ class astar_builder extends astar
 
 					local cost   = cnode.cost + move
 					local weight = cost + dist
-					local node = ab_node(to, cnode, cost, weight, dist, d)
+					local node = ab_node(to, cnode, cost, dist, d)
 
 					add_to_open(node, weight)
 				}
@@ -290,7 +288,7 @@ class astar_builder extends astar
 
 						local cost   = cnode.cost + move
 						local weight = cost + dist
-						local node = ab_node(to, cnode, cost, weight, dist, d, 1 /*bridge*/)
+						local node = ab_node(to, cnode, cost, dist, d, 1 /*bridge*/)
 
 						add_to_open(node, weight)
 
