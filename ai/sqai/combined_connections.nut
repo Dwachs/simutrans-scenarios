@@ -200,9 +200,11 @@ class amphibious_pathfinder_t extends astar
 					}
 					local move   = cost_harbour
 					local dist   = estimate_distance(to)
-					local weight = cnode.cost + dist
+					local cost   = cnode.cost + move
+					local weight = cost + dist
 
-					local node = ab_node(to, cnode, cnode.cost + move, weight, dist, d, 0x10)
+					local node = ab_node(to, cnode, cost, weight, dist, d, 0x10)
+
 					add_to_open(node, weight)
 				}
 				else {
@@ -224,9 +226,10 @@ class amphibious_pathfinder_t extends astar
 
 					local move   = cost_harbour
 					local dist   = estimate_distance(to)
-					local weight = cnode.cost + dist
+					local cost   = cnode.cost + move
+					local weight = cost + dist
 
-					local node = ab_node(to, cnode, cnode.cost + move, weight, dist, d, 0x0f)
+					local node = ab_node(to, cnode, cost, weight, dist, d, 0x0f)
 					add_to_open(node, weight)
 				}
 			}
