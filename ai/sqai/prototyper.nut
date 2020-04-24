@@ -3,7 +3,7 @@ class cnv_proto_t
 	weight = 0
 	power  = 0
 	min_top_speed = 0
-	max_speed = 1000000000000
+	max_speed = -1
 	length = 0
 	capacity = 0
 	maintenance = 0
@@ -30,7 +30,12 @@ class cnv_proto_t
 		cnv.weight = weight + freight.get_weight_per_unit() * newveh.get_capacity() + newveh.get_weight()
 
 		cnv.power = power + newveh.get_power()
-		cnv.max_speed = min(max_speed, newveh.get_topspeed())
+		if (max_speed >= 0) {
+			cnv.max_speed = min(max_speed, newveh.get_topspeed())
+		}
+		else {
+			cnv.max_speed = newveh.get_topspeed()
+		}
 		cnv.length = length + newveh.get_length()
 
 		local fits = newveh.get_freight().is_interchangeable(freight)
