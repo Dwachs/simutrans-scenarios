@@ -115,11 +115,15 @@ class amphibious_pathfinder_t extends astar
 	planned_harbour_len = 0
 	planned_harbour_flat_len = 0
 
+	cost_harbour = 333
+	cost_road_stop = 17
+
 	c_harbour_tiles = null
 
 	constructor(way_, harbour_, harbour_flat_)
 	{
 		base.constructor()
+
 		way = way_
 		builder = way_planner_x(our_player)
 		builder.set_build_types(way)
@@ -194,7 +198,7 @@ class amphibious_pathfinder_t extends astar
 					{
 						continue
 					}
-					local move   = 333;
+					local move   = cost_harbour
 					local dist   = estimate_distance(to)
 					local weight = cnode.cost + dist
 
@@ -218,7 +222,7 @@ class amphibious_pathfinder_t extends astar
 						}
 					}
 
-					local move   = 333;
+					local move   = cost_harbour
 					local dist   = estimate_distance(to)
 					local weight = cnode.cost + dist
 
@@ -255,7 +259,7 @@ class amphibious_pathfinder_t extends astar
 					local to = square_x(c.x, c.y).get_ground_tile()
 					if (to  &&  to.is_empty()  &&  to.get_slope()==0) {
 						// can place station here
-						local move   = 17
+						local move   = cost_road_stop
 						local dist   = estimate_distance(to)
 
 						local cost   = cnode.cost + move
