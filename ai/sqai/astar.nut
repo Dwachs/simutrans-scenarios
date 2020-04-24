@@ -345,7 +345,7 @@ class astar_builder extends astar
 					if (err) gui.add_message_at(our_player, "Failed to build road from  " + coord_to_string(route[i-1]) + " to " + coord_to_string(route[i]) +"\n" + err, route[i])
 				}
 				else if (route[i-1].flag == 1) {
-					err = command_x.build_bridge(our_player, route[i], route[i-1], bridger.bridge)
+					err = command_x.build_bridge(our_player, route[i-1], route[i], bridger.bridge)
 					if (err) gui.add_message_at(our_player, "Failed to build bridge from  " + coord_to_string(route[i-1]) + " to " + coord_to_string(route[i]) +"\n" + err, route[i])
 				}
 				if (err) {
