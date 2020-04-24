@@ -472,11 +472,29 @@ class route_finder_water extends astar
 
 class route_finder_water_depot extends route_finder_water
 {
-	function estimate_distance(tile)
+	function estimate_distance(c)
 	{
-		return tile.get_objects().get_count()
-		// take first empty tile
-
+		local t = tile_x(c.x, c.y, c.z)
+		if (t.is_water()  &&  t.get_objects().get_count()==0) {
+			return 0
+		}
+		local depot = t.find_object(mo_depot_water)
+		if (depot  &&  depot.get_owner().nr == our_player_nr) {
+			return 0
+		}
+		return 10
+	}
+	function add_to_open(c, weight)
+	{
+		if (c.dist == 0) {
+			// test for depot
+			local t = tile_x(c.x, c.y, c.z)
+			if (t.get_objects().get_count()==0) {
+				// depot not existing, we must build, increase weight
+				weight += 25 * cost_straight
+			}
+		}
+		base.add_to_open(c, weight)
 	}
 
 	function search_route(watertiles)
