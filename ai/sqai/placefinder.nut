@@ -25,7 +25,7 @@ class finder {
 		}
 		// sort
 		sleep()
-		area.sort(/*compare_coord*/)
+		area.sort()
 		return area
 	}
 

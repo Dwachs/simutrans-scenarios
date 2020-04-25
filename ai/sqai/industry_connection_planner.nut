@@ -1,6 +1,4 @@
 
-function abs(a) { return a >= 0 ? a : -a }
-
 openwater <- {
 	function get_cost() { return 0; }
 	function get_maintenance()  { return 0; }
