@@ -215,7 +215,7 @@ class ship_connector_t extends manager_t
 		if (tile_list.len()>0  &&  halt_list.len()>0) {
 			foreach(tile in tile_list) {
 
-				local h = schedule_entry_x(tile,0,0).get_halt(our_player)
+				local h = halt_x.get_halt(tile, our_player)
 				if (h) {
 					foreach(halt in halt_list) {
 						if ( (h <=> halt) == 0) {
@@ -366,7 +366,7 @@ class ship_connector_t extends manager_t
 		}
 
 		// halt at this harbour
-		local harbour_halt = schedule_entry_x(tile,0,0).get_halt(our_player)
+		local harbour_halt = halt_x.get_halt(tile, our_player)
 
 		water_arr.clear()
 		// all water tiles near harbour
@@ -379,7 +379,7 @@ class ship_connector_t extends manager_t
 				try {
 					if (finder._tile_water(to)) {
 
-						local halt = schedule_entry_x(to,0,0).get_halt(our_player)
+						local halt = halt_x.get_halt(to, our_player)
 
 						if (halt  &&  ( (halt<=>harbour_halt) != 0) ) {
 							// we do not want to use this halt
