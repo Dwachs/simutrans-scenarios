@@ -1,5 +1,3 @@
-// account for changes in scenario_base
-factory_production_x.scaling <- 0
 
 // TODO obey construction speed setting
 // TODO check allowed transport types
@@ -64,7 +62,6 @@ function start(pl_nr)
 	}
 	our_player = player_x(our_player_nr)
 
-	info_text  +="Act as player no " + our_player_nr + " under the name " + our_player.get_name() + ". <br>"
 	print("Act as player no " + our_player_nr + " under the name " + our_player.get_name())
 
 	init_tree()
@@ -118,8 +115,6 @@ function init()
 	annotate_classes()
 }
 
-
-info_text <- ""
 
 function step()
 {
