@@ -1,3 +1,7 @@
+/**
+ * Contains helpers to save and load instances using strings.
+ */
+
 // functions to load/save an instance
 function loadinstance(classname, table)
 {

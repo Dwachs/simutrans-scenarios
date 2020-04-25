@@ -1,3 +1,12 @@
+/**
+ * Classes to help with route-searching.
+ * Based on the A* algorithm.
+ */
+
+
+/**
+ * Nodes for A*
+ */
 class astar_node extends coord3d
 {
 	previous = null // previous node
@@ -18,8 +27,20 @@ class astar_node extends coord3d
 	}
 }
 
-function abs(x) { return x>0 ? x : -x }
-
+/**
+ * Class to perform A* searches.
+ *
+ * Derived classes have to implement:
+ *    process_node(node): add nodes to open list reachable by node
+ *
+ * To use this:
+ * 1) call prepare_search
+ * 2) add tiles to target array
+ * 3) call compute_bounding_box
+ * 4) add start tiles to open list
+ * 5) call search()
+ * 6) use route
+ */
 class astar
 {
 	closed_list = null // table
@@ -31,10 +52,12 @@ class astar
 
 	route       = null // route, reversed: target to start
 
+	// statistics
 	calls_open = 0
 	calls_closed = 0
 	calls_pop = 0
 
+	// costs - can be fine-tuned
 	cost_straight = 10
 	cost_curve    = 14
 
@@ -58,6 +81,7 @@ class astar
 		calls_pop = 0
 	}
 
+	// adds node c to closed list
 	function add_to_close(c)
 	{
 		closed_list[ coord3d_to_key(c) ] <- 1
@@ -83,6 +107,7 @@ class astar
 		return (key in closed_list)
 	}
 
+	// add node c to open list with give weight
 	function add_to_open(c, weight)
 	{
 		local i = nodes.len()
@@ -131,6 +156,9 @@ class astar
 		print("Calls: pop = " + calls_pop + ", open = " + calls_open + ", close = " + calls_closed)
 	}
 
+	/**
+	 * Computes bounding box of all targets to speed up distance computation.
+	 */
 	function compute_bounding_box()
 	{
 		if (targets.len()>0) {
@@ -147,6 +175,10 @@ class astar
 		}
 	}
 
+	/**
+	 * Estimates distance to target.
+	 * Returns zero if and only if c is a target tile.
+	 */
 	function estimate_distance(c)
 	{
 		local d = 0
@@ -183,8 +215,8 @@ class astar
 
 class ab_node extends ::astar_node
 {
-	dir = 0 // direction to reach this node
-	flag = 0
+	dir = 0   // direction to reach this node
+	flag = 0  // flag internal to the route searcher
 	constructor(c, p, co, d, di, fl=0)
 	{
 		base.constructor(c, p, co, d)
@@ -193,7 +225,9 @@ class ab_node extends ::astar_node
 	}
 }
 
-
+/**
+ * Helper class to find bridges and spots to place them.
+ */
 class pontifex
 {
 	player = null
@@ -229,14 +263,15 @@ class pontifex
 	}
 }
 
-
+/**
+ * Class to search a route and to build a connection (i.e. roads).
+ * Builds bridges. But not tunnels (not implemented).
+ */
 class astar_builder extends astar
 {
 	builder = null
 	bridger = null
 	way     = null
-
-
 
 	function process_node(cnode)
 	{
@@ -355,7 +390,10 @@ class astar_builder extends astar
 	}
 }
 
-
+/**
+ * Helper class to remove a field at a factory.
+ * Used if no empty spot is available to place a station.
+ */
 function remove_field(pos)
 {
 	local tile = square_x(pos.x, pos.y).get_ground_tile()

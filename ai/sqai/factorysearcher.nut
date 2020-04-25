@@ -1,3 +1,9 @@
+/**
+ * Class that searches for usefull unbuild factory connections.
+ * Depending on player number uses two different methods:
+ * 1) Method that tries to complete a factory tree (taken from the c++ implementation of the freight AI in player/ai_goods.cc
+ * 2) A demand-driven method.
+ */
 class factorysearcher_t extends manager_t
 {
 	froot = null    // factory_x, complete this tree

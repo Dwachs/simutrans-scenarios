@@ -1,3 +1,11 @@
+/**
+ * Classes to manage industry connections.
+ */
+
+/**
+ * A link is a connection between two factories.
+ * Save its state here.
+ */
 class industry_link_t
 {
 	f_src   = null // factory_x
@@ -36,8 +44,9 @@ class industry_link_t
 	}
 }
 
-
-
+/**
+ * Manage the links operated by us.
+ */
 class industry_manager_t extends manager_t
 {
 	link_list = null
@@ -105,6 +114,9 @@ class industry_manager_t extends manager_t
 		return res
 	}
 
+	/**
+	 * Loop through all links.
+	 */
 	function work()
 	{
 		// iterate the link_iterator, which is a generator
@@ -130,6 +142,11 @@ class industry_manager_t extends manager_t
 		}
 	}
 
+	/**
+	 * Check link:
+	 * - if state is st_missing set state to st_free after some time
+	 * - for working links see after their lines
+	 */
 	function check_link(link)
 	{
 		switch(link.state) {
@@ -152,6 +169,9 @@ class industry_manager_t extends manager_t
 		}
 	}
 
+	/**
+	 * Manages convoys of one line: withdraw if there are too many, build new ones, upgrade to newer vehicles
+	 */
 	function check_link_line(link, line)
 	{
 		dbgprint("Check line " + line.get_name())
@@ -313,6 +333,10 @@ class industry_manager_t extends manager_t
 
 	}
 
+	/**
+	 * Upgrade: plan a new convoy type with the prototyper, then
+	 * sell existing convoys, create new ones.
+	 */
 	function upgrade_link_line(link, line)
 	{
 		// find convoy
