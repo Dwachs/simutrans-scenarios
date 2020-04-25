@@ -234,29 +234,56 @@ class ship_connector_t extends manager_t
 				for(local d = 1; d<16; d*=2) {
 					local to = tile.get_neighbour(wt_all, d)
 
-					if (to  &&  to.is_empty()) {
-						local ok = false
-						if (to.get_slope() !=0) {
-							// check place for harbour
-							local size = planned_station.get_size(0)
-							ok = finder.check_harbour_place(tile, size.x*size.y, dir.backward(d))
-						}
-						else if (planned_harbour_flat) {
-							// check place for flat one
-							local size = planned_harbour_flat.get_size(0)
-							ok = finder.check_harbour_place(tile, size.x*size.y, dir.backward(d))
-							// TODO check that only one direction is possible
-						}
-						if (ok) {
-							anch.append(tile)
-							c_harbour_tiles[coord3d_to_key(tile)] <- to
-							break
-						}
+					if (to  &&  get_harbour_type_for_tile(to, planned_station, planned_harbour_flat, d) > 0) {
+
+						anch.append(tile)
+						c_harbour_tiles[coord3d_to_key(tile)] <- to
+						break
 					}
 				}
 			}
 		}
 		return anch
+	}
+
+	/**
+	 * Checks whether we can build harbour: empty tile, slopes, enough space on water
+	 * returns type of harbour that can be placed here: 0 - nothing, 1 - harbour, 2 - flat harbour
+	 */
+	static function get_harbour_type_for_tile(tile, planned_harbour, planned_harbour_flat, d_water_to_land /*direction*/)
+	{
+		local type = 0 // 1 - harbour, 2 - flat harbour
+		if (!tile.is_empty()) {
+			return 0
+		}
+		// first slope
+		if (planned_harbour) {
+			if (tile.get_slope() != 0) {
+				// can place on slopes, target tile is sloped and empty -> we can terraform
+				type = 1
+			}
+			else if (planned_harbour_flat == null  &&  command_x.can_set_slope(our_player, tile, dir.to_slope(d_water_to_land))==null) {
+				// no slope, no flat dock, but terraforming possible
+				type = 1
+			}
+		}
+		if (planned_harbour_flat) {
+			if (tile.get_slope() == 0) {
+				// flat place
+				type = 2
+			}
+			else if (planned_harbour == null  &&  command_x.can_set_slope(our_player, tile, 0)==null) {
+				// not flat, not harbour for slopes, can flatten
+				type = 2
+			}
+		}
+		if (type == 0) {
+			return 0
+		}
+		// then space
+		local size = type == 1  ?  planned_harbour.get_size(0) : planned_harbour_flat.get_size(0)
+
+		return finder.check_harbour_place(tile, size.x*size.y, dir.backward(d_water_to_land)) ? type : 0
 	}
 
 	/**
@@ -291,29 +318,48 @@ class ship_connector_t extends manager_t
 		if (get_harbour_halt(tile)) {
 			// already there
 		}
-		else if (tile.get_slope()) {
+		else {
+			local d_water_to_land = coord_to_dir(dif)
+			local type = get_harbour_type_for_tile(tile, planned_station, planned_harbour_flat, d_water_to_land)
 
-			local slope = dir.to_slope(coord_to_dir(dif))
-			// terraform ??
-			if (tile.get_slope() != slope  &&  tile.get_slope() != 2*slope) {
-				err = command_x.set_slope(our_player, tile, slope )
-				if (err) {
-					return err;
+			switch(type) {
+				case 0: {
+					err = "Cannot place harbour here"
+					gui.add_message_at(our_player, "Cannot place any harbour at " + coord_to_string(tile), tile)
+					break
+				}
+				case 1: {
+					// harbour on slope
+					local slope = dir.to_slope(d_water_to_land)
+					// terraform ??
+					if (tile.get_slope() != slope  &&  tile.get_slope() != 2*slope) {
+						err = command_x.set_slope(our_player, tile, slope )
+						if (err) gui.add_message_at(our_player, "Failed to change slope at " + coord_to_string(tile) +"\n" + err, tile)
+					}
+					if (err == null) {
+						err = command_x.build_station(our_player, tile, planned_station)
+						if (err) gui.add_message_at(our_player, "Failed to harbour at " + coord_to_string(tile) +"\n" + err, tile)
+					}
+					local size = planned_station.get_size(0)
+					len = size.x*size.y
+					break
+				}
+				case 2: {
+					// flat dock
+					// flatten slope
+					if (tile.get_slope() != 0) {
+						err = command_x.set_slope(our_player, tile, 0 )
+						if (err) gui.add_message_at(our_player, "Failed to flatten slope at " + coord_to_string(tile) +"\n" + err, tile)
+					}
+					if (err == null) {
+						err = command_x.build_station(our_player, tile, planned_harbour_flat, dir.backward(d_water_to_land))
+						if (err) gui.add_message_at(our_player, "Failed to build flat harbour at " + coord_to_string(tile) +"\n" + err, tile)
+					}
+					local size = planned_harbour_flat.get_size(0)
+					len = size.x*size.y
+					break
 				}
 			}
-			err = command_x.build_station(our_player, tile, planned_station)
-			if (err) gui.add_message_at(our_player, "Failed to harbour at " + coord_to_string(tile) +"\n" + err, tile)
-
-			local size = planned_station.get_size(0)
-			len = size.x*size.y
-		}
-		else {
-			local dir = dir.backward(coord_to_dir( dif) )
-			err = command_x.build_station(our_player, tile, planned_harbour_flat, dir)
-			if (err) gui.add_message_at(our_player, "Failed to flat harbour at " + coord_to_string(tile) +"\n" + err, tile)
-
-			local size = planned_harbour_flat.get_size(0)
-			len = size.x*size.y
 		}
 		if (err) {
 			return err;

@@ -213,9 +213,7 @@ class amphibious_pathfinder_t extends astar
 						}
 					}
 					// we have to build ourselves
-					if (!from.is_water()  ||  !to.is_empty()
-						||  !check_slope_for_harbour(to)
-						||  !finder.check_harbour_place(from, to.get_slope() ? planned_harbour_len : planned_harbour_flat_len, dir.backward(d)))
+					if (!from.is_water()  ||  !can_place_harbour(to, d) )
 					{
 						continue
 					}
@@ -230,10 +228,9 @@ class amphibious_pathfinder_t extends astar
 				}
 				else {
 					// land -> water
-					if (!to.is_water()  ||  !from.is_empty()
-						||  !check_slope_for_harbour(from)
-						||  (cnode.flag & 0x60)
-						||  !finder.check_harbour_place(to, from.get_slope() ? planned_harbour_len : planned_harbour_flat_len, d))
+					if (!to.is_water()
+						||  !can_place_harbour(from, dir.backward(d))
+						||  (cnode.flag & 0x60) )
 					{
 						continue
 					}
@@ -257,17 +254,9 @@ class amphibious_pathfinder_t extends astar
 		}
 	}
 
-	function check_slope_for_harbour(tile)
+	function can_place_harbour(tile, d_water_to_land)
 	{
-		if (planned_harbour  &&  tile.get_slope() != 0) {
-			// can place on slopes, target tile is sloped and empty -> we can terraform
-			return true
-		}
-		if (planned_harbour_flat  &&  tile.get_slope() == 0) {
-			// flat place
-			return true
-		}
-		return false;
+		return ship_connector_t.get_harbour_type_for_tile(tile, planned_harbour, planned_harbour_flat, d_water_to_land) > 0
 	}
 
 	function process_node_to_land(cnode, from)
