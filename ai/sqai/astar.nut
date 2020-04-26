@@ -306,7 +306,7 @@ class astar_builder extends astar
 					add_to_open(node, weight)
 				}
 				// try bridges
-				else if (bridger  &&  d == cnode.dir) {
+				else if (bridger  &&  d == cnode.dir  &&  cnode.flag != 1) {
 					local len = 1
 					local max_len = bridger.bridge.get_max_length()
 
