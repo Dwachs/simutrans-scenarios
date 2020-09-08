@@ -62,8 +62,7 @@ class industry_manager_t extends manager_t
 	/// Generate unique key from link data
 	static function key(src, des, fre)
 	{
-		return (translate(fre) + "-from-" + src.get_name() + coord_to_string(src)
-		                       + "-to-" + des.get_name() + coord_to_string(des) ).toalnum()
+		return ("freight-" + fre + "-from-" + coord_to_key(src) + "-to-"  + coord_to_key(des) ).toalnum()
 	}
 
 	function set_link_state(src, des, fre, state)
@@ -426,6 +425,19 @@ class industry_manager_t extends manager_t
 		c.p_withdraw = true
 		append_child(c)
 		return true
+	}
+
+	// keys were broken for rotated maps, regenerate keys for all entries
+	function repair_keys()
+	{
+		link_iterator = null
+		local save_list = link_list
+		link_list = {}
+
+		foreach(link in save_list) {
+			link_list[ key(link.f_src, link.f_dest, link.freight.get_name()) ] <- link
+		}
+
 	}
 
 	function _save()
