@@ -28,6 +28,7 @@ function start()
 	test_map_objects()
 	test_tiles()
 	test_transformer()
+	test_obj_desc()
 	gui.open_info_win_at("debug")
 }
 
@@ -226,4 +227,17 @@ function test_transformer()
 		testprint("test powerline_x::is_connected 4 ", lt.is_connected(tr3), false);
 
 	}
+}
+
+function test_obj_desc()
+{
+	local res = false;
+	try {
+		local cost = tree_desc_x.get_price()
+		print("cost " + cost)
+		res = type(cost) == "integer"
+	}
+	catch (ev) {
+	}
+	testprint("test tree_desc_x.get_price ", res, true);
 }
