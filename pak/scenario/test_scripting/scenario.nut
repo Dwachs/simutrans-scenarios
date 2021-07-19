@@ -176,6 +176,11 @@ function test_map_objects()
 		testprint("test roadsign_passable1 ", rs.can_pass(player_x(2)), true)
 		testprint("test roadsign_passable1 ", rs.can_pass(player_x(3)), false)
 	}
+	{
+		local way = way_x(23, 44, 4)
+		testprint("test way cnv passed1 ", way.get_convoys_passed()[0], 0)
+		testprint("test way cnv passed2 ", way.get_convoys_passed()[1], 0)
+	}
 }
 
 function test_tiles()
@@ -187,6 +192,12 @@ function test_tiles()
 	tile.mark()
 	testprint("test is_marked2 ", tile.is_marked(), true)
 	tile.unmark()
+
+	{
+		local t = tile_x(23, 44, 4)
+		testprint("test tile::get_way1 ", t.get_way(wt_road) == null, false)
+		testprint("test tile::get_way2 ", t.get_way(wt_rail) == null, true)
+	}
 }
 
 function test_transformer()
