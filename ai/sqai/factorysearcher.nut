@@ -94,20 +94,11 @@ class factorysearcher_t extends manager_t
 		}
 		else {
 			// demand-driven method
+			local fab
+			if (fab = get_next_end_consumer()) {
+				local n = plan_increase_consumption(fab)
 
-			// plan root tree
-			if (froot  &&  plan_increase_consumption(froot) <= 0) {
-				froot = null
-			}
-
-			// determine new root
-			if (froot == null) {
-				local fab
-				if (fab = get_next_end_consumer()) {
-					local n = plan_increase_consumption(fab)
-
-					return r_t( n>0  ? RT_PARTIAL_SUCCESS : RT_SUCCESS)
-				}
+				return r_t( n>0  ? RT_PARTIAL_SUCCESS : RT_SUCCESS)
 			}
 		}
 		return r_t(RT_SUCCESS)
