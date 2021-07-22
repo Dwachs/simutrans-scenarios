@@ -133,6 +133,7 @@ function testprint(string, res, valid)
 function test_stuff()
 {
 	testprint("get_pakset_name ", type( get_pakset_name() )=="string",  true)
+	testprint("player gettype ", player_x(0).get_type(), 1)
 }
 
 function test_is_valid()
