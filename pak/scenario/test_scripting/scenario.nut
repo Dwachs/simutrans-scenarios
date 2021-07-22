@@ -23,6 +23,7 @@ function resume_game()
 function start()
 {
 	debug_text = ""
+	test_stuff()
 	test_is_valid()
 	test_building()
 	test_map_objects()
@@ -121,17 +122,17 @@ function is_tool_allowed(pl, tool_id, wt)
 	return true
 }
 
-function TEST(res, valid)
-{
-	return
-}
-
 function testprint(string, res, valid)
 {
 	print(string + (res == valid ? "ok" : "FAIL") )
 	if (res != valid) {
 		debug_text += string + "FAIL<br>\n"
 	}
+}
+
+function test_stuff()
+{
+	testprint("get_pakset_name ", type( get_pakset_name() )=="string",  true)
 }
 
 function test_is_valid()
