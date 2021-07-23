@@ -125,6 +125,8 @@ function init(pl_nr)
 	our_player_nr = pl_nr
 	our_player    = player_x(our_player_nr)
 
+	srand(our_player_nr * 4711)
+
 	annotate_classes() // sets class name as attribute for all known classes (save.nut)
 
 	init_tree()
@@ -194,4 +196,20 @@ function save()
 	print("save used " + (toc-tic) + " ops, remaining = " + rem)
 
 	return str
+}
+
+/**
+ * Returns random number rand with 0 <= rand < upper
+ */
+function myrand(upper)
+{
+	if (upper <= 1) {
+		return upper-1
+	}
+	local rem = (RAND_MAX % upper) + 1
+	local r
+	do {
+		r = rand()
+	} while (r > RAND_MAX - rem)
+	return r % upper
 }
