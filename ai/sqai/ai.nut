@@ -122,6 +122,8 @@ function resume_game(pl_nr)
 
 function init(pl_nr)
 {
+	debug.set_pause_on_error(true)
+
 	our_player_nr = pl_nr
 	our_player    = player_x(our_player_nr)
 
