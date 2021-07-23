@@ -115,10 +115,15 @@ class factorysearcher_t extends manager_t
 		}
 		else {
 			// demand-driven method
-			local fab
-			if (fab = get_next_end_consumer()) {
-				local n = plan_increase_consumption(fab)
+			if (froot == null) {
+				froot = get_next_end_consumer()
+			}
 
+			if (froot) {
+				local n = plan_increase_consumption(froot)
+				if (n==0  &&  count_missing_factories(froot) <= 0) {
+					froot = null
+				}
 				return r_t( n>0  ? RT_PARTIAL_SUCCESS : RT_SUCCESS)
 			}
 		}
