@@ -58,7 +58,8 @@ class factorysearcher_t extends manager_t
 	function _save()
 	{
 		// dont save the list, generate new one
-		factory_list = null
+		factory_iterator = null
+		factory_list     = null
 		return base._save()
 	}
 
