@@ -213,3 +213,12 @@ function myrand(upper)
 	} while (r > RAND_MAX - rem)
 	return r % upper
 }
+
+/**
+ * Returns ticks for today + @p m months
+ */
+function today_plus_months(m)
+{
+	local time = world.get_time()
+	return time.ticks + m * time.ticks_per_month
+}

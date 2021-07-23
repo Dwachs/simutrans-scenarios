@@ -18,7 +18,7 @@ class industry_link_t
 	// next check needed if ticks > next_check
 	// state == st_missing: check availability again
 	// state == st_build: check for possible upgrades
-	next_check = 0 // only set for st_missing, next time availability has to be checked
+	next_check = 0 // if world.get_time().ticks > next_check then state is set to free (for state == failed, missing)
 
 	static st_free    = 0 /// not registered
 	static st_planned = 1 /// link is planned
@@ -79,17 +79,20 @@ class industry_manager_t extends manager_t
 			link_list[k] <- l
 		}
 
-		if (state == industry_link_t.st_built) {
-			link_list[k].next_check = world.get_time().next_month_ticks
+		switch(state) {
+			case industry_link_t.st_built:
+				link_list[k].next_check = today_plus_months(1)
 
-			local text = ""
-			text = "Transport " + translate(fre) + " from "
-			text += coord(src.x, src.y).href(src.get_name()) + " to "
-			text += coord(des.x, des.y).href(des.get_name()) + "<br>"
-		}
-
-		if (state == industry_link_t.st_missing) {
-			link_list[k].next_check = world.get_time().next_month_ticks
+				local text = ""
+				text = "Transport " + translate(fre) + " from "
+				text += coord(src.x, src.y).href(src.get_name()) + " to "
+				text += coord(des.x, des.y).href(des.get_name()) + "<br>"
+				break
+			case industry_link_t.st_missing:
+				link_list[k].next_check = today_plus_months(3)
+				break
+			case industry_link_t.st_failed:
+				link_list[k].next_check = today_plus_months(12)
 		}
 	}
 
@@ -151,15 +154,16 @@ class industry_manager_t extends manager_t
 		switch(link.state) {
 			case industry_link_t.st_free:
 			case industry_link_t.st_planned:
-			case industry_link_t.st_failed:
 				return
 			case industry_link_t.st_built:
 				if (link.lines.len()==0) return
 				break
+			case industry_link_t.st_failed:
 			case industry_link_t.st_missing:
 				if (link.next_check >= world.get_time().ticks) return
 				// try to plan again
 				link.state = industry_link_t.st_free
+				link.next_check = 0
 				break
 		}
 		// iterate through all lines
@@ -191,7 +195,7 @@ class industry_manager_t extends manager_t
 		}
 		// try to upgrade
 		if (cnv.has_obsolete_vehicles()  &&  link.next_check < world.get_time().ticks) {
-			link.next_check = world.get_time().next_month_ticks
+			link.next_check = today_plus_months(1)
 			if (upgrade_link_line(link, line)) {
 				// update successful
 				return
