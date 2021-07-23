@@ -277,7 +277,7 @@ class astar_route_finder extends astar
 		search()
 
 		if (route.len() > 0) {
-			return { start = route[route.len()-1], end = route[0], routes = route }
+			return { start = route.top(), end = route[0], routes = route }
 		}
 		print("No route found")
 		return { err =  "No route" }
@@ -465,7 +465,7 @@ class astar_builder extends astar
 					return { err =  err }
 				}
 			}
-			return { start = route[ route.len()-1], end = route[0] }
+			return { start = route.top(), end = route[0] }
 		}
 		print("No route found")
 		return { err =  "No route" }

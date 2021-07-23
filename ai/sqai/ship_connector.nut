@@ -508,7 +508,7 @@ class route_finder_water extends astar
 		}
 
 		if (route.len() > 0) {
-			return { start = route[ route.len()-1], end = route[0] }
+			return { start = route.top(), end = route[0] }
 		}
 
 		print("No water depot route found")
