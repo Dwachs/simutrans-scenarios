@@ -67,17 +67,12 @@ possible_names <- ["Petersil Cars", "Teumer Alp Dream Trucks", "Runk & Strunk Tr
  */
 function start(pl_nr)
 {
-	init()
-	our_player_nr = pl_nr
-
+	init(pl_nr)
+	// set a funny name
 	if (our_player_nr > 1  &&  our_player_nr-2 < possible_names.len()) {
 		player_x(our_player_nr).set_name( possible_names[our_player_nr-2]);
 	}
-	our_player = player_x(our_player_nr)
-
 	print("Act as player no " + our_player_nr + " under the name " + our_player.get_name())
-
-	init_tree()
 }
 
 /**
@@ -120,18 +115,19 @@ function init_tree()
  */
 function resume_game(pl_nr)
 {
-	init()
-	our_player_nr = pl_nr
-	our_player    = player_x(our_player_nr)
-
-	init_tree()
+	init(pl_nr)
 
 	s = persistent.s
 }
 
-function init()
+function init(pl_nr)
 {
+	our_player_nr = pl_nr
+	our_player    = player_x(our_player_nr)
+
 	annotate_classes() // sets class name as attribute for all known classes (save.nut)
+
+	init_tree()
 }
 
 /**
