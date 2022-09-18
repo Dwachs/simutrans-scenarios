@@ -21,7 +21,7 @@ class vehicle_constructor_t extends node_t
 
 	function step()
 	{
-		local pl = player_x(our_player)
+		local pl = our_player
 
 		c_wt = p_convoy.veh[0].get_waytype()
 
