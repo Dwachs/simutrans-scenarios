@@ -54,8 +54,16 @@ class vehicle_constructor_t extends node_t
 					local vlist = c_cnv.get_vehicles()
 					while (vlist.len() < p_convoy.veh.len())
 					{
-						p_depot.append_vehicle(pl, c_cnv, p_convoy.veh[ vlist.len() ])
+						local old_length = vlist.len()
+						local res = p_depot.append_vehicle(pl, c_cnv, p_convoy.veh[ old_length ])
+
 						vlist = c_cnv.get_vehicles()
+
+						if (old_length == vlist.len()) {
+							print("Appending vehicle failed.")
+							// appending failed
+							return r_t(RT_TOTAL_FAIL)
+						}
 					}
 
 					phase ++
