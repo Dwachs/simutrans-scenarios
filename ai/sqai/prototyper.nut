@@ -115,6 +115,7 @@ class prototyper_t extends node_t
 	 */
 	function step()
 	{
+		local date = world.get_time()
 		// list of all vehicles
 		local list = vehicle_desc_x.get_available_vehicles(wt)
 
@@ -216,7 +217,17 @@ class prototyper_t extends node_t
 			ind++
 
 			local list_succ = test.get_successors()
-			it_lists[ind] = list_succ.len()==0 ? list_other : list_succ
+			if (list_succ.len()==0) {
+				it_lists[ind] = list_other
+			}
+			else{
+				it_lists[ind] = []
+				foreach(v in list_succ) {
+					if (v.is_available(date)) {
+						it_lists[ind].append(v)
+					}
+				}
+			}
 			it_ind[ind] = -1
 		}
 
