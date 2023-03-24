@@ -40,7 +40,7 @@ class amphibious_connection_planner_t extends industry_connection_planner_t
 		}
 		// generate report
 		local report = report_t()
-		report.action = node_seq_t()
+		report.action = node_seq_t() // TODO do something more clever here
 
 		// now loop through route backwards
 		local i = route.len()-1;
